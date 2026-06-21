@@ -242,6 +242,10 @@ for rel in "${ALL_ENTRIES[@]}"; do
 done
 
 readme_content="$(md_to_html "$SCRIPT_DIR/README.md")"
+# Fix relative paths when root README is served from docs/
+readme_content="$(echo "$readme_content" | sed 's|href="LICENSE"|href="../LICENSE"|g')"
+# Fix docs/ prefix duplication — paths like docs/foo become foo since we're inside docs/
+readme_content="$(echo "$readme_content" | sed 's|href="docs/|href="|g')"
 idx_sidebar="$(build_sidebar "")"
 idx_html="$(wrap_page "$TITLE" "$idx_sidebar" "" "$readme_content")"
 echo "$idx_html" > "$ROOT/index.html"

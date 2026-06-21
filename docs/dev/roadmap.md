@@ -11,10 +11,10 @@
 
 ## v0.2 — SlipperBoot (загрузчик)
 - [ ] **SlipperBoot** на C++, без единого `.S` файла
-- [ ] UART драйвер (вывод сообщений)
-- [ ] VirtIO block (чтение диска)
+- [ ] UART драйвер (адрес из FDT)
+- [ ] VirtIO block v2 MMIO (чтение диска, адрес + IRQ из FDT)
 - [ ] ELF64 парсер (header + program headers)
-- [ ] FDT парсер (память, устройства)
+- [ ] FDT парсер (память, устройства, UART, VirtIO — по compatible)
 - [ ] Загрузка `kernel.elf` с диска и запуск
 - [ ] Boot menu через UART (опционально)
 
@@ -24,10 +24,10 @@
 - [ ] Round-robin scheduler по CLINT
 - [ ] syscall: ecall handler
 
-## v0.4 — VirtIO block в ядре
-- [ ] Уточнить Legacy vs v2 MMIO для OC2r
+## v0.4 — VirtIO block в ядре (v2 MMIO)
+- [x] Подтверждён v2 MMIO (Sedna: `VIRTIO_MMIO_VERSION = 2`, обязателен `VIRTIO_F_VERSION_1`)
 - [ ] Descriptor-based page allocator (contiguous)
-- [ ] Чтение/запись секторов
+- [ ] Чтение/запись секторов (драйвер под v2)
 - [ ] Прерывания по завершению I/O
 
 ## v0.5 — SlipFS + userspace

@@ -87,10 +87,14 @@ main li{margin-bottom:4px}
 <li><a href="../shell/commands.html">&nbsp;&nbsp;Commands</a></li>
 <li><a href="../shell/internals.html">&nbsp;&nbsp;Internals</a></li></ul></nav>
 <main><div class="breadcrumb"><a href="../">Docs</a> <span> / Architecture / Boot Sequence</span></div><h1>Последовательность загрузки</h1>
+<blockquote>
+<p><strong>Статус</strong>: SlipperBoot - design / not yet implemented (v0.2, см. roadmap).
+Текущая загрузка: OpenSBI → <code>boot/boot.S</code> → <code>kernel_main</code>.</p>
+</blockquote>
 <h2>OpenSBI (M-mode)</h2>
 <p>OpenSBI (вшит в OC2r) стартует в M-mode. Настраивает делегирование
 прерываний, передаёт управление на 0x80000000 в S-mode.</p>
-<h2>SlipperBoot (S-mode, C++)</h2>
+<h2>SlipperBoot (S-mode, C++) - v0.2</h2>
 <p>Встречает управление по адресу 0x80000000. Написан на чистом C++,
 единственный <code>asm volatile</code> - naked <code>_start()</code>.</p>
 <ol>
@@ -114,7 +118,7 @@ SlipperBoot @ 0x80000000 (S-mode, C++)
     ↓
 SlipperOS @ 0x80200000 (S-mode, Rust)
 </code></pre>
-<h2>SlipperOS kernel (S-mode, Rust)</h2>
+<h2>SlipperOS kernel (S-mode, Rust) - реализовано (v0.1)</h2>
 <p>Загружается SlipperBoot'ом по адресу из ELF. Точка входа - <code>kernel_main</code>.</p>
 <ol>
 <li><strong>UART init</strong> - &quot;SlipperOS v0.1 booting...&quot;</li>

@@ -87,22 +87,22 @@ main li{margin-bottom:4px}
 <li><a href="../shell/commands.html">&nbsp;&nbsp;Commands</a></li>
 <li><a href="../shell/internals.html">&nbsp;&nbsp;Internals</a></li></ul></nav>
 <main><div class="breadcrumb"><a href="../">Docs</a> <span> / Architecture / Overview</span></div><h1>Архитектура SlipperOS</h1>
-<p>SlipperOS - монолитное ядро, работающее в S-mode RISC-V.</p>
+<p>SlipperOS - монолитное ядро, работающее в S-mode RISC-V.
+Bootloader на C++, ядро на Rust, userspace C (picolibc) - см. language_policy.</p>
 <h2>Компоненты</h2>
 <ul>
 <li><strong>boot</strong> - точка входа _start, обнуление bss, стек</li>
-<li><strong>SlipperBoot</strong> - загрузчик с диска (ELF парсер, FDT, boot.cfg)</li>
+<li><strong>SlipperBoot</strong> - загрузчик с диска (ELF парсер, FDT, boot.cfg) - <strong>v0.2, не реализован</strong></li>
 <li><strong>kernel</strong> - инициализация, panic handler</li>
 <li><strong>drivers</strong> - UART, CLINT, PLIC, VirtIO (block + GPU)</li>
 <li><strong>mm</strong> - bump allocator, page allocator, Sv39</li>
 <li><strong>proc</strong> - задачи, round-robin, контекст</li>
 <li><strong>fs</strong> - slipfs (блочная ФС)</li>
 <li><strong>shell</strong> - slip shell (UART-based CLI)</li>
-<li><strong>compositor</strong> - Wayland + virtio-gpu (в разработке)</li>
+<li><strong>compositor</strong> - Wayland + GPU (отдельный аддон, не входит в ядро)</li>
 </ul>
 <h2>Поток управления</h2>
 <pre><code>OpenSBI → _start → [SlipperBoot] → kernel_main → shell_start
-                                            → compositor_start (v1.0)
 </code></pre></main>
 </body>
 </html>

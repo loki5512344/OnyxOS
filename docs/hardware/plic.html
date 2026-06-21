@@ -102,12 +102,12 @@ main li{margin-bottom:4px}
 <h2>Прерывания QEMU virt</h2>
 <p>Из <code>qemu/hw/riscv/virt.c</code>:</p>
 <table><thead><tr><th>Источник</th><th>ID</th><th>Устройство</th></tr></thead><tbody>
-<tr><td>1</td><td>VIRTIO 0</td></tr>
-<tr><td>2</td><td>VIRTIO 1</td></tr>
-<tr><td>...</td><td>...</td></tr>
-<tr><td>8</td><td>VIRTIO 7</td></tr>
-<tr><td>10</td><td>UART0</td></tr>
-<tr><td>32-35</td><td>PCI-E</td></tr>
+<tr><td>1</td><td>1</td><td>VIRTIO 0</td></tr>
+<tr><td>2</td><td>2</td><td>VIRTIO 1</td></tr>
+<tr><td>...</td><td>...</td><td>...</td></tr>
+<tr><td>8</td><td>8</td><td>VIRTIO 7</td></tr>
+<tr><td>10</td><td>10</td><td>UART0</td></tr>
+<tr><td>32-35</td><td>32-35</td><td>PCI-E</td></tr>
 </tbody></table>
 <p><strong>Важно</strong>: UART = ID 10, не 1. VIRTIO = 1-8.</p>
 <h2>Порядок работы</h2>

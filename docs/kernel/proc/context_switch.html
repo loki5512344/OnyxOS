@@ -93,6 +93,8 @@ ra, sp, s0-s11.</p>
 <p>Записывает регистры в структуру Context.</p>
 <h2>restore_context</h2>
 <p>Загружает регистры из Context и переходит по ra.</p>
-<p>Переключение происходит только в sched_yield.</p></main>
+<p><strong>Статус</strong>: <code>save_context()</code> / <code>restore_context()</code> написаны, но ещё не
+вызываются из <code>sched_yield()</code>. Реальное переключение контекста появится
+в v0.3 (см. roadmap и known_issues).</p></main>
 </body>
 </html>

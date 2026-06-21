@@ -1,11 +1,14 @@
 # Последовательность загрузки
 
+> **Статус**: SlipperBoot — design / not yet implemented (v0.2, см. roadmap).
+> Текущая загрузка: OpenSBI → `boot/boot.S` → `kernel_main`.
+
 ## OpenSBI (M-mode)
 
 OpenSBI (вшит в OC2r) стартует в M-mode. Настраивает делегирование
 прерываний, передаёт управление на 0x80000000 в S-mode.
 
-## SlipperBoot (S-mode, C++)
+## SlipperBoot (S-mode, C++) — v0.2
 
 Встречает управление по адресу 0x80000000. Написан на чистом C++,
 единственный `asm volatile` — naked `_start()`.
@@ -32,7 +35,7 @@ SlipperBoot @ 0x80000000 (S-mode, C++)
 SlipperOS @ 0x80200000 (S-mode, Rust)
 ```
 
-## SlipperOS kernel (S-mode, Rust)
+## SlipperOS kernel (S-mode, Rust) — реализовано (v0.1)
 
 Загружается SlipperBoot'ом по адресу из ELF. Точка входа — `kernel_main`.
 

@@ -21,16 +21,18 @@ Taken/Last), либо уметь выделять N последовательн
 
 **План**: решить до v0.4.
 
-## VirtIO: проверить Legacy vs v2 MMIO для OC2r
+## VirtIO: Legacy vs v2 MMIO — resolved
 
-Документация и прототип драйвера (`virtio/block.rs`) написаны под Legacy
-MMIO (один QueuePfn). Современный QEMU `virt` отдаёт v2 по умолчанию
-(раздельные QueueDescLow/High, QueueAvailLow/High, QueueUsedLow/High).
-OC2r (Minecraft-мод) может эмулировать любой из них — неизвестно.
+Проверено по исходникам Sedna (`AbstractVirtIODevice.java`):
+`VIRTIO_MMIO_VERSION = 0x2`, требует `VIRTIO_F_VERSION_1` при негоциации.
+**Legacy транспорт не поддерживается**.
 
-**Риск**: драйвер собранный под Legacy не заведётся на реальном OC2r.
+Документация (`hardware/virtio/overview.md`, `hardware/virtio/block.md`,
+`dev/bootloader.md`) переписана под v2 MMIO:
+`QueueDescLow/High`, `QueueDriverLow/High`, `QueueDeviceLow/High`,
+`QueueReady`. Драйвер в ядре (`kernel/drivers/virtio/block.rs`) — v0.4.
 
-**План**: свериться с исходниками/вики OC2r перед v0.4.
+**Риск снят**. Подтверждено: только v2.
 
 ## Обработка трапов: S-mode регистры
 
@@ -40,17 +42,31 @@ OC2r (Minecraft-мод) может эмулировать любой из них
 
 **План**: v0.3, через `global_asm!` или `naked_asm!` внутри Rust-файла.
 
+## UART/VirtIO адреса захардкожены, не из FDT
+
+`kernel/drivers/uart.rs` (0x10000000), `kernel/drivers/virtio/block.rs`
+(0x10001000, IRQ 1-8), и kernel и bootloader пока хардкодят адреса
+и IRQ. На OC2r с динамическим размещением устройств это не заведётся.
+
+**План**: v0.2 (SlipperBoot) — FDT-парсер для UART и VirtIO;
+v0.3 или v0.4 — передача FDT в ядро и отказ от хардкода.
+
 ## Userspace: ELF load + syscalls не реализованы
 
 ELF-загрузчик (`elf_loading.md`) спроектирован, но не реализован.
 Зависит от v0.4 (VirtIO block) и v0.5 (SlipFS).
 
-## Wayland: свой compositor вместо wlroots
+## Shell: read_line() всегда возвращает None
 
-Составной риск:
-- VirtIO-GPU драйвер не написан (v0.6)
-- wlroots требует POSIX-слоя (epoll, libinput, DRM), которого нет
-- Hyprland добавляет C++17, STL, exceptions
+`shell/slip.rs` — баг: `INPUT_LEN` сбрасывается в 0 до того, как строка
+обработана, из-за чего `read_line()` всегда возвращает `None`, и команды
+не выполняются.
 
-**План**: свой минимальный compositor на Rust (v0.7).
-wlroots/Hyprland — отдельная исследовательская ветка, не блокирует v1.0.
+**План**: исправить до v0.2.
+
+## Sv39: map_page() не аллоцирует page tables
+
+`mm/map.rs` — `map_page()` проверяет `pte.is_valid()` но при отсутствии
+таблицы просто возвращается, а не выделяет новую страницу для page table.
+
+**План**: v0.3, вместе с реальным переключением контекста.

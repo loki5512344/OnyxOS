@@ -87,7 +87,7 @@ main li{margin-bottom:4px}
 <li><a href="shell/commands.html">&nbsp;&nbsp;Commands</a></li>
 <li><a href="shell/internals.html">&nbsp;&nbsp;Internals</a></li></ul></nav>
 <main><h1>SlipperOS</h1>
-<p><a href="LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3" /></a>
+<p><a href="../LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3" /></a>
 <a href="https://riscv.org"><img src="https://img.shields.io/badge/arch-RISCV64-green" alt="Arch: RISC-V 64" /></a>
 <a href=""><img src="https://img.shields.io/badge/status-development-yellow" alt="Status" /></a>
 <a href="https://rust-lang.org"><img src="https://img.shields.io/badge/rust-nightly_2026--06--01-orange" alt="Rust" /></a>
@@ -134,21 +134,25 @@ qemu-system-riscv64 \
 <tr><td>Context switch</td><td>wip</td><td><a href="https://github.com/loki5512344/SlipperOS/blob/main/kernel/proc/context.rs">kernel/proc/context.rs</a></td></tr>
 <tr><td>VirtIO block</td><td>wip</td><td><a href="https://github.com/loki5512344/SlipperOS/blob/main/kernel/drivers/virtio/block.rs">kernel/drivers/virtio/block.rs</a></td></tr>
 <tr><td>SlipFS</td><td>planned</td><td><a href="https://github.com/loki5512344/SlipperOS/blob/main/kernel/fs/slipfs.rs">kernel/fs/slipfs.rs</a></td></tr>
-<tr><td>Trap handler</td><td>planned</td><td><a href="docs/kernel/interrupts.html">docs/kernel/interrupts.html</a></td></tr>
+<tr><td>Trap handler</td><td>planned</td><td><a href="kernel/interrupts.html">docs/kernel/interrupts.html</a></td></tr>
 </tbody></table>
 <hr />
 <h2>Repository</h2>
-<pre><code>boot/            [boot.S](https://github.com/loki5512344/SlipperOS/blob/main/boot/boot.S)
-bootloader/      [linker.ld](https://github.com/loki5512344/SlipperOS/blob/main/bootloader/linker.ld) + planned C++ bootloader
-kernel/          [main.rs](https://github.com/loki5512344/SlipperOS/blob/main/kernel/main.rs)
-  drivers/       UART, CLINT, PLIC, VirtIO
-  mm/            memory management
-  proc/          tasks and scheduler
-  fs/            filesystem
-  shell/         slip CLI
-docs/            [documentation site](docs/index.html)
-build-docs.sh    HTML generator
-</code></pre>
+<ul>
+<li><a href="https://github.com/loki5512344/SlipperOS/tree/main/boot"><code>boot/</code></a> - boot.S + linker script</li>
+<li><a href="https://github.com/loki5512344/SlipperOS/tree/main/bootloader"><code>bootloader/</code></a> - planned C++ bootloader</li>
+<li><a href="https://github.com/loki5512344/SlipperOS/tree/main/kernel"><code>kernel/</code></a> - Rust kernel
+<ul>
+<li><code>drivers/</code> - UART, CLINT, PLIC, VirtIO</li>
+<li><code>mm/</code> - memory management</li>
+<li><code>proc/</code> - tasks and scheduler</li>
+<li><code>fs/</code> - filesystem</li>
+<li><code>shell/</code> - slip CLI</li>
+</ul>
+</li>
+<li><a href="https://github.com/loki5512344/SlipperOS/tree/main/docs"><code>docs/</code></a> - documentation site</li>
+<li><a href="build-docs.sh"><code>build-docs.sh</code></a> - HTML generator</li>
+</ul>
 <h2>License</h2>
 <p>GPL-3.0-or-later</p></main>
 </body>

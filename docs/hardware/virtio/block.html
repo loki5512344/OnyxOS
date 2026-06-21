@@ -86,14 +86,14 @@ main li{margin-bottom:4px}
 <div class="dir">Shell</div>
 <li><a href="../../shell/commands.html">&nbsp;&nbsp;Commands</a></li>
 <li><a href="../../shell/internals.html">&nbsp;&nbsp;Internals</a></li></ul></nav>
-<main><div class="breadcrumb"><a href="../../">Docs</a> <span> / Hardware / Virtio / Block</span></div><h1>VirtIO Block</h1>
-<p>Device ID: 2, PLIC IRQ: 1-8 (зависит от индекса)</p>
+<main><div class="breadcrumb"><a href="../../">Docs</a> <span> / Hardware / Virtio / Block</span></div><h1>VirtIO Block (v2 MMIO)</h1>
+<p>Device ID: 2. PLIC IRQ - выделяется динамически, читать из FDT.</p>
 <h2>Очередь</h2>
 <ul>
-<li>1 очередь (requestq), размер определяется через <code>QueueNumMax</code></li>
-<li>Descriptor table: 16 байт на entry (addr, len, flags, next)</li>
-<li>Available ring: driver → device</li>
-<li>Used ring: device → driver</li>
+<li>1 очередь (requestq), размер через <code>QueueNumMax</code></li>
+<li>v2 MMIO: адреса vring пишутся в <code>QueueDescLow/High</code>,
+<code>QueueDriverLow/High</code>, <code>QueueDeviceLow/High</code></li>
+<li>Готовность: <code>QueueReady = 1</code></li>
 </ul>
 <h2>Запрос (3 дескриптора)</h2>
 <ol>
@@ -109,19 +109,23 @@ main li{margin-bottom:4px}
 </tbody></table>
 <h2>Размер сектора</h2>
 <p>Один сектор = 512 байт. Все смещения в секторах.</p>
-<h2>PLIC прерывания</h2>
-<p>VirtIO device 0 (0x10001000) → PLIC IRQ 1
-VirtIO device 1 (0x10002000) → PLIC IRQ 2
-...
-VirtIO device 7 (0x10008000) → PLIC IRQ 8</p>
-<h2>Инициализация</h2>
+<h2>Инициализация (v2)</h2>
 <ol>
-<li>Reset (Status = 0)</li>
-<li>ACK → DRIVER</li>
-<li>Negotiate features (отключаем VIRTIO_BLK_F_RO если надо)</li>
-<li>FEATURES_OK (проверяем подтверждение)</li>
-<li>Настройка vring: QueueSel → QueueNum → alloc → QueuePfn</li>
-<li>DRIVER_OK → device live</li>
+<li>Reset → ACK → DRIVER</li>
+<li>Читаем <code>HostFeatures0/1</code>, пишем <code>GuestFeatures0/1</code>
+с <code>VIRTIO_F_VERSION_1</code> (bit 32)</li>
+<li><code>FEATURES_OK</code> → проверяем подтверждение</li>
+<li>Выбираем очередь: <code>QueueSel = 0</code></li>
+<li>Узнаём размер: читаем <code>QueueNumMax</code></li>
+<li>Ставим размер: <code>QueueNum = N</code></li>
+<li>Аллоцируем vring (phys contiguous):
+<ul>
+<li>пишем адреса в <code>QueueDescLow/High</code>, <code>QueueDriverLow/High</code>,
+<code>QueueDeviceLow/High</code></li>
+<li><code>QueueReady = 1</code></li>
+</ul>
+</li>
+<li><code>DRIVER_OK</code> → device live</li>
 </ol>
 <h2>Чтение сектора</h2>
 <pre><code>header.blktype = 0 (IN)

@@ -88,9 +88,10 @@ main li{margin-bottom:4px}
 <li><a href="../shell/internals.html">&nbsp;&nbsp;Internals</a></li></ul></nav>
 <main><div class="breadcrumb"><a href="../">Docs</a> <span> / Hardware / Uart</span></div><h1>NS16550A UART</h1>
 <ul>
-<li><strong>Адрес</strong>: 0x10000000</li>
+<li><strong>Адрес</strong>: динамический, из FDT (<code>compatible = &quot;ns16550a&quot;</code>).
+В QEMU virt: 0x10000000. На OC2r - зависит от порядка устройств.</li>
 <li><strong>MMIO</strong>, 8-bit регистры</li>
-<li>PLIC interrupt ID: <strong>10</strong></li>
+<li><strong>PLIC interrupt ID</strong>: динамический, из FDT</li>
 </ul>
 <h2>Регистры</h2>
 <table><thead><tr><th>Смещение</th><th>DLAB=0</th><th>DLAB=1</th><th>Описание</th></tr></thead><tbody>
@@ -108,10 +109,11 @@ main li{margin-bottom:4px}
 base[2] = 0x07;         // FCR: FIFO enable, clear
 base[1] = 0x01;         // IER: enable RX interrupt
 </code></pre>
-<h3>Baud rate (опционально для QEMU)</h3>
+<h3>Baud rate</h3>
 <pre><code class="language-rust">// Делитель = clock_hz / (baud * 16)
-// QEMU: clock = 22_729_000, target = 2400 baud
-// divisor = ceil(22_729_000 / (2400 * 16)) = 592
+// OC2r (UART16550AProvider): clock = 3_686_400
+//   divisor = ceil(3_686_400 / (115200 * 16)) = 2
+// QEMU: clock = 22_729_000 (для сверки)
 base[3] |= 1 &lt;&lt; 7;      // DLAB = 1
 base[0] = divisor &amp; 0xFF;
 base[1] = divisor &gt;&gt; 8;
@@ -126,7 +128,7 @@ base[3] &amp;= !(1 &lt;&lt; 7);   // DLAB = 0
 <h2>Режимы</h2>
 <ol>
 <li><strong>Polling</strong> - читаем LSR.DR в цикле</li>
-<li><strong>Interrupt</strong> - UART дёргает PLIC IRQ 10, читаем в обработчике</li>
+<li><strong>Interrupt</strong> - UART дёргает PLIC IRQ (номер из FDT), читаем в обработчике</li>
 </ol></main>
 </body>
 </html>

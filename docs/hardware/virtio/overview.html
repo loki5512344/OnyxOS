@@ -86,68 +86,83 @@ main li{margin-bottom:4px}
 <div class="dir">Shell</div>
 <li><a href="../../shell/commands.html">&nbsp;&nbsp;Commands</a></li>
 <li><a href="../../shell/internals.html">&nbsp;&nbsp;Internals</a></li></ul></nav>
-<main><div class="breadcrumb"><a href="../../">Docs</a> <span> / Hardware / Virtio / Overview</span></div><h1>VirtIO - MMIO Interface (Legacy)</h1>
-<p>VirtIO - стандартный интерфейс виртуальных устройств в QEMU.</p>
-<h2>MMIO Base</h2>
-<p>Устройства в QEMU <code>virt</code> располагаются с шагом 0x1000:</p>
-<pre><code>0x10001000 - VirtIO 0
-0x10002000 - VirtIO 1
-...
-0x10008000 - VirtIO 7
-</code></pre>
+<main><div class="breadcrumb"><a href="../../">Docs</a> <span> / Hardware / Virtio / Overview</span></div><h1>VirtIO - MMIO Interface (v2, Modern)</h1>
+<p>VirtIO - стандартный интерфейс виртуальных устройств. Sedna/OC2r
+реализует <strong>только v2 (modern) MMIO-транспорт</strong>:
+<code>VIRTIO_MMIO_VERSION = 0x2</code>, требует флаг <code>VIRTIO_F_VERSION_1</code>
+при негоциации фич.</p>
+<blockquote>
+<p>Legacy (v1) транспорт с регистром <code>QueuePfn</code> не поддерживается.</p>
+</blockquote>
+<h2>MMIO адреса</h2>
+<p>Адреса выделяются динамически через FDT, начиная от 0x10000000
+с шагом 0x1000. Порядок зависит от конфигурации машины.
+См. <code>compatible = &quot;virtio,mmio&quot;</code> в device tree.</p>
 <h2>Магическое число</h2>
 <p><code>0x74726976</code> = &quot;triv&quot; (little-endian &quot;virt&quot;).</p>
 <h2>Device IDs</h2>
-<table><thead><tr><th>ID</th><th>Устройство</th></tr></thead><tbody>
-<tr><td>0</td><td>none (not connected)</td></tr>
-<tr><td>1</td><td>Network</td></tr>
-<tr><td>2</td><td>Block</td></tr>
-<tr><td>3</td><td>Console</td></tr>
-<tr><td>4</td><td>Entropy (RNG)</td></tr>
-<tr><td>6</td><td>GPU</td></tr>
+<table><thead><tr><th>ID</th><th>Устройство</th><th>В Sedna?</th></tr></thead><tbody>
+<tr><td>0</td><td>none (not connected)</td><td>-</td></tr>
+<tr><td>1</td><td>Network</td><td>да</td></tr>
+<tr><td>2</td><td>Block</td><td>да</td></tr>
+<tr><td>3</td><td>Console</td><td>да</td></tr>
+<tr><td>4</td><td>Entropy (RNG)</td><td>нет</td></tr>
+<tr><td>9</td><td>9P (filesystem)</td><td>да</td></tr>
+<tr><td>16</td><td>GPU (VirtIO-GPU)</td><td><strong>*<em>*нет*</em>*</strong> в Sedna</td></tr>
+<tr><td>18</td><td>Sound</td><td>нет</td></tr>
 </tbody></table>
-<h2>MMIO регистры (Legacy)</h2>
-<table><thead><tr><th>Смещение</th><th>Регистр</th></tr></thead><tbody>
-<tr><td>0x000</td><td>MagicValue</td></tr>
-<tr><td>0x004</td><td>Version</td></tr>
-<tr><td>0x008</td><td>DeviceID</td></tr>
-<tr><td>0x00C</td><td>VendorID</td></tr>
-<tr><td>0x010</td><td>HostFeatures</td></tr>
-<tr><td>0x014</td><td>HostFeaturesSel</td></tr>
-<tr><td>0x020</td><td>GuestFeatures</td></tr>
-<tr><td>0x024</td><td>GuestFeaturesSel</td></tr>
-<tr><td>0x028</td><td>GuestPageSize</td></tr>
-<tr><td>0x030</td><td>QueueSel</td></tr>
-<tr><td>0x034</td><td>QueueNumMax</td></tr>
-<tr><td>0x038</td><td>QueueNum</td></tr>
-<tr><td>0x03C</td><td>QueueAlign</td></tr>
-<tr><td>0x040</td><td>QueuePfn</td></tr>
-<tr><td>0x050</td><td>QueueNotify</td></tr>
-<tr><td>0x060</td><td>InterruptStatus</td></tr>
-<tr><td>0x064</td><td>InterruptAck</td></tr>
-<tr><td>0x070</td><td>Status</td></tr>
-<tr><td>0x100</td><td>Config</td></tr>
+<p><strong>Важно</strong>: GPU (ID 16) в Sedna отсутствует. Вывод картинки - через
+<code>SimpleFramebufferDevice</code> (не VirtIO), см. <code>wayland.md</code>.</p>
+<h2>MMIO регистры (v2, Modern)</h2>
+<table><thead><tr><th>Смещение</th><th>Регистр</th><th>Описание</th></tr></thead><tbody>
+<tr><td>0x000</td><td>MagicValue</td><td>0x74726976</td></tr>
+<tr><td>0x004</td><td>Version</td><td>2 (modern)</td></tr>
+<tr><td>0x008</td><td>DeviceID</td><td>тип устройства</td></tr>
+<tr><td>0x00C</td><td>VendorID</td><td>0x554D (умный)</td></tr>
+<tr><td>0x010</td><td>HostFeatures0</td><td>Фичи устройства [31:0]</td></tr>
+<tr><td>0x014</td><td>HostFeatures1</td><td>Фичи устройства [63:32]</td></tr>
+<tr><td>0x020</td><td>GuestFeatures0</td><td>Фичи драйвера [31:0]</td></tr>
+<tr><td>0x024</td><td>GuestFeatures1</td><td>Фичи драйвера [63:32]</td></tr>
+<tr><td>0x030</td><td>QueueSel</td><td>Выбор очереди (0..N-1)</td></tr>
+<tr><td>0x034</td><td>QueueNumMax</td><td>Макс. размер очереди</td></tr>
+<tr><td>0x038</td><td>QueueNum</td><td>Установить размер</td></tr>
+<tr><td>0x044</td><td>QueueReady</td><td>1 = очередь готова</td></tr>
+<tr><td>0x050</td><td>QueueNotify</td><td>Kick устройству</td></tr>
+<tr><td>0x060</td><td>InterruptStatus</td><td>Флаги прерываний</td></tr>
+<tr><td>0x064</td><td>InterruptAck</td><td>Сброс флагов</td></tr>
+<tr><td>0x070</td><td>Status</td><td>Статус устройства</td></tr>
+<tr><td>0x080</td><td>QueueDescLow</td><td>phys addr desc table [31:0]</td></tr>
+<tr><td>0x084</td><td>QueueDescHigh</td><td>[63:32]</td></tr>
+<tr><td>0x090</td><td>QueueDriverLow</td><td>phys addr avail ring [31:0]</td></tr>
+<tr><td>0x094</td><td>QueueDriverHigh</td><td>[63:32]</td></tr>
+<tr><td>0x0A0</td><td>QueueDeviceLow</td><td>phys addr used ring [31:0]</td></tr>
+<tr><td>0x0A4</td><td>QueueDeviceHigh</td><td>[63:32]</td></tr>
+<tr><td>0x100</td><td>Config</td><td>Device-specific</td></tr>
 </tbody></table>
 <h2>Инициализация</h2>
 <ol>
 <li><strong>Reset</strong> - <code>Status = 0</code></li>
-<li><strong>ACK</strong> - <code>Status |= ACK</code></li>
-<li><strong>DRIVER</strong> - <code>Status |= DRIVER</code></li>
-<li><strong>Features</strong> - read HostFeatures, write negotiated GuestFeatures</li>
-<li><strong>FEATURES_OK</strong> - <code>Status |= FEATURES_OK</code>, re-read, проверяем</li>
-<li><strong>Queue setup</strong> - QueueSel → QueueNum → alloc Queue → QueuePfn</li>
-<li><strong>DRIVER_OK</strong> - <code>Status |= DRIVER_OK</code> → device live</li>
+<li><strong>ACK</strong> - <code>Status |= 1</code></li>
+<li><strong>DRIVER</strong> - <code>Status |= 2</code></li>
+<li><strong>Features</strong> - читаем <code>HostFeatures0/1</code>, пишем <code>GuestFeatures0/1</code>
+<strong>обязательно</strong> включив <code>VIRTIO_F_VERSION_1</code> (bit 32 = <code>1 &lt;&lt; 0</code> в GuestFeatures1)</li>
+<li><strong>FEATURES_OK</strong> - <code>Status |= 8</code>, читаем <code>Status</code>: бит 7 должен быть 1</li>
+<li><strong>Queue setup</strong> - <code>QueueSel = 0</code> → <code>QueueNum = N</code> → пишем физические
+адреса в <code>QueueDescLow/High</code>, <code>QueueDriverLow/High</code>, <code>QueueDeviceLow/High</code>
+→ <code>QueueReady = 1</code></li>
+<li><strong>DRIVER_OK</strong> - <code>Status |= 4</code> → device live</li>
 </ol>
 <h2>VirtQueue (vring)</h2>
-<p>Устройство и драйвер общаются через кольцевые буферы в RAM:</p>
+<p>Формат vring не изменился: Descriptor Table (16 байт), Available Ring,
+Used Ring. Адреса передаются 64-битными через две 32-битные половинки.</p>
 <pre><code>Descriptor Table (16 байт × N)
-  [addr, len, flags, next]
+  [addr (u64), len (u32), flags (u16), next (u16)]
 
 Available Ring (driver → device)
-  [idx, ring[N], flags]
+  [flags (u16), idx (u16), ring[N] (u16)]
 
 Used Ring (device → driver)
-  [idx, ring[N], flags]
+  [flags (u16), idx (u16), ring[N] { id (u32), len (u32) }]
 </code></pre>
 <ul>
 <li>Descriptor: физический адрес, длина, флаги (NEXT=1, WRITE=2), next idx</li>

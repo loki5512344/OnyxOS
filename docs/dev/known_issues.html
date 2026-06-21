@@ -100,29 +100,37 @@ main li{margin-bottom:4px}
 непрерывной памяти. Либо внедрить descriptor-based allocator (флаги
 Taken/Last), либо уметь выделять N последовательных страниц.</p>
 <p><strong>План</strong>: решить до v0.4.</p>
-<h2>VirtIO: проверить Legacy vs v2 MMIO для OC2r</h2>
-<p>Документация и прототип драйвера (<code>virtio/block.rs</code>) написаны под Legacy
-MMIO (один QueuePfn). Современный QEMU <code>virt</code> отдаёт v2 по умолчанию
-(раздельные QueueDescLow/High, QueueAvailLow/High, QueueUsedLow/High).
-OC2r (Minecraft-мод) может эмулировать любой из них - неизвестно.</p>
-<p><strong>Риск</strong>: драйвер собранный под Legacy не заведётся на реальном OC2r.</p>
-<p><strong>План</strong>: свериться с исходниками/вики OC2r перед v0.4.</p>
+<h2>VirtIO: Legacy vs v2 MMIO - resolved</h2>
+<p>Проверено по исходникам Sedna (<code>AbstractVirtIODevice.java</code>):
+<code>VIRTIO_MMIO_VERSION = 0x2</code>, требует <code>VIRTIO_F_VERSION_1</code> при негоциации.
+<strong>Legacy транспорт не поддерживается</strong>.</p>
+<p>Документация (<code>hardware/virtio/overview.md</code>, <code>hardware/virtio/block.md</code>,
+<code>dev/bootloader.md</code>) переписана под v2 MMIO:
+<code>QueueDescLow/High</code>, <code>QueueDriverLow/High</code>, <code>QueueDeviceLow/High</code>,
+<code>QueueReady</code>. Драйвер в ядре (<code>kernel/drivers/virtio/block.rs</code>) - v0.4.</p>
+<p><strong>Риск снят</strong>. Подтверждено: только v2.</p>
 <h2>Обработка трапов: S-mode регистры</h2>
 <p>В документацию внесены правки (<code>sepc</code>/<code>scause</code>/<code>stval</code>/<code>stvec</code>/<code>sret</code>),
 но кода trap handler ещё нет. При реализации важно не скопировать M-mode
 формулировки из старых доков - настроить <code>stvec</code>, а не <code>mtvec</code>.</p>
 <p><strong>План</strong>: v0.3, через <code>global_asm!</code> или <code>naked_asm!</code> внутри Rust-файла.</p>
+<h2>UART/VirtIO адреса захардкожены, не из FDT</h2>
+<p><code>kernel/drivers/uart.rs</code> (0x10000000), <code>kernel/drivers/virtio/block.rs</code>
+(0x10001000, IRQ 1-8), и kernel и bootloader пока хардкодят адреса
+и IRQ. На OC2r с динамическим размещением устройств это не заведётся.</p>
+<p><strong>План</strong>: v0.2 (SlipperBoot) - FDT-парсер для UART и VirtIO;
+v0.3 или v0.4 - передача FDT в ядро и отказ от хардкода.</p>
 <h2>Userspace: ELF load + syscalls не реализованы</h2>
 <p>ELF-загрузчик (<code>elf_loading.md</code>) спроектирован, но не реализован.
 Зависит от v0.4 (VirtIO block) и v0.5 (SlipFS).</p>
-<h2>Wayland: свой compositor вместо wlroots</h2>
-<p>Составной риск:</p>
-<ul>
-<li>VirtIO-GPU драйвер не написан (v0.6)</li>
-<li>wlroots требует POSIX-слоя (epoll, libinput, DRM), которого нет</li>
-<li>Hyprland добавляет C++17, STL, exceptions</li>
-</ul>
-<p><strong>План</strong>: свой минимальный compositor на Rust (v0.7).
-wlroots/Hyprland - отдельная исследовательская ветка, не блокирует v1.0.</p></main>
+<h2>Shell: read_line() всегда возвращает None</h2>
+<p><code>shell/slip.rs</code> - баг: <code>INPUT_LEN</code> сбрасывается в 0 до того, как строка
+обработана, из-за чего <code>read_line()</code> всегда возвращает <code>None</code>, и команды
+не выполняются.</p>
+<p><strong>План</strong>: исправить до v0.2.</p>
+<h2>Sv39: map_page() не аллоцирует page tables</h2>
+<p><code>mm/map.rs</code> - <code>map_page()</code> проверяет <code>pte.is_valid()</code> но при отсутствии
+таблицы просто возвращается, а не выделяет новую страницу для page table.</p>
+<p><strong>План</strong>: v0.3, вместе с реальным переключением контекста.</p></main>
 </body>
 </html>

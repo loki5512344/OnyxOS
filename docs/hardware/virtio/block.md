@@ -1,13 +1,13 @@
-# VirtIO Block
+# VirtIO Block (v2 MMIO)
 
-Device ID: 2, PLIC IRQ: 1-8 (зависит от индекса)
+Device ID: 2. PLIC IRQ — выделяется динамически, читать из FDT.
 
 ## Очередь
 
-- 1 очередь (requestq), размер определяется через `QueueNumMax`
-- Descriptor table: 16 байт на entry (addr, len, flags, next)
-- Available ring: driver → device
-- Used ring: device → driver
+- 1 очередь (requestq), размер через `QueueNumMax`
+- v2 MMIO: адреса vring пишутся в `QueueDescLow/High`,
+  `QueueDriverLow/High`, `QueueDeviceLow/High`
+- Готовность: `QueueReady = 1`
 
 ## Запрос (3 дескриптора)
 
@@ -27,21 +27,20 @@ Device ID: 2, PLIC IRQ: 1-8 (зависит от индекса)
 
 Один сектор = 512 байт. Все смещения в секторах.
 
-## PLIC прерывания
+## Инициализация (v2)
 
-VirtIO device 0 (0x10001000) → PLIC IRQ 1
-VirtIO device 1 (0x10002000) → PLIC IRQ 2
-...
-VirtIO device 7 (0x10008000) → PLIC IRQ 8
-
-## Инициализация
-
-1. Reset (Status = 0)
-2. ACK → DRIVER
-3. Negotiate features (отключаем VIRTIO_BLK_F_RO если надо)
-4. FEATURES_OK (проверяем подтверждение)
-5. Настройка vring: QueueSel → QueueNum → alloc → QueuePfn
-6. DRIVER_OK → device live
+1. Reset → ACK → DRIVER
+2. Читаем `HostFeatures0/1`, пишем `GuestFeatures0/1`
+   с `VIRTIO_F_VERSION_1` (bit 32)
+3. `FEATURES_OK` → проверяем подтверждение
+4. Выбираем очередь: `QueueSel = 0`
+5. Узнаём размер: читаем `QueueNumMax`
+6. Ставим размер: `QueueNum = N`
+7. Аллоцируем vring (phys contiguous):
+   - пишем адреса в `QueueDescLow/High`, `QueueDriverLow/High`,
+     `QueueDeviceLow/High`
+   - `QueueReady = 1`
+8. `DRIVER_OK` → device live
 
 ## Чтение сектора
 

@@ -1,8 +1,9 @@
 # NS16550A UART
 
-- **Адрес**: 0x10000000
+- **Адрес**: динамический, из FDT (`compatible = "ns16550a"`).
+  В QEMU virt: 0x10000000. На OC2r — зависит от порядка устройств.
 - **MMIO**, 8-bit регистры
-- PLIC interrupt ID: **10**
+- **PLIC interrupt ID**: динамический, из FDT
 
 ## Регистры
 
@@ -25,12 +26,13 @@ base[2] = 0x07;         // FCR: FIFO enable, clear
 base[1] = 0x01;         // IER: enable RX interrupt
 ```
 
-### Baud rate (опционально для QEMU)
+### Baud rate
 
 ```rust
 // Делитель = clock_hz / (baud * 16)
-// QEMU: clock = 22_729_000, target = 2400 baud
-// divisor = ceil(22_729_000 / (2400 * 16)) = 592
+// OC2r (UART16550AProvider): clock = 3_686_400
+//   divisor = ceil(3_686_400 / (115200 * 16)) = 2
+// QEMU: clock = 22_729_000 (для сверки)
 base[3] |= 1 << 7;      // DLAB = 1
 base[0] = divisor & 0xFF;
 base[1] = divisor >> 8;
@@ -46,4 +48,4 @@ base[3] &= !(1 << 7);   // DLAB = 0
 ## Режимы
 
 1. **Polling** — читаем LSR.DR в цикле
-2. **Interrupt** — UART дёргает PLIC IRQ 10, читаем в обработчике
+2. **Interrupt** — UART дёргает PLIC IRQ (номер из FDT), читаем в обработчике

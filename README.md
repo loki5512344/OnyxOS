@@ -67,18 +67,16 @@ Once booted, type `help` in the shell.
 
 ## Repository
 
-```
-boot/            [boot.S](https://github.com/loki5512344/SlipperOS/blob/main/boot/boot.S)
-bootloader/      [linker.ld](https://github.com/loki5512344/SlipperOS/blob/main/bootloader/linker.ld) + planned C++ bootloader
-kernel/          [main.rs](https://github.com/loki5512344/SlipperOS/blob/main/kernel/main.rs)
-  drivers/       UART, CLINT, PLIC, VirtIO
-  mm/            memory management
-  proc/          tasks and scheduler
-  fs/            filesystem
-  shell/         slip CLI
-docs/            [documentation site](docs/index.html)
-build-docs.sh    HTML generator
-```
+- [`boot/`](https://github.com/loki5512344/SlipperOS/tree/main/boot) — boot.S + linker script
+- [`bootloader/`](https://github.com/loki5512344/SlipperOS/tree/main/bootloader) — planned C++ bootloader
+- [`kernel/`](https://github.com/loki5512344/SlipperOS/tree/main/kernel) — Rust kernel
+  - `drivers/` — UART, CLINT, PLIC, VirtIO
+  - `mm/` — memory management
+  - `proc/` — tasks and scheduler
+  - `fs/` — filesystem
+  - `shell/` — slip CLI
+- [`docs/`](https://github.com/loki5512344/SlipperOS/tree/main/docs) — documentation site
+- [`build-docs.sh`](build-docs.sh) — HTML generator
 
 ## License
 

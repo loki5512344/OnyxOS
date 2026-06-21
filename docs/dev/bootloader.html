@@ -141,7 +141,7 @@ void _start() {
 ├── boot_main.cpp           # boot_main(), init sequence
 ├── uart.hpp                # NS16550A MMIO-враппер (шаблон)
 ├── uart.cpp
-├── virtio.hpp              # VirtIO block legacy MMIO
+├── virtio.hpp              # VirtIO block v2 MMIO (QueueDesc/QueueReady)
 ├── virtio.cpp
 ├── elf.hpp                 # ELF64 header parser
 ├── elf.cpp
@@ -150,16 +150,21 @@ void _start() {
 </code></pre>
 <h2>boot_main()</h2>
 <pre><code class="language-cpp">void boot_main() {
+    FDT fdt(fdt_addr);
+
+    auto uart_addr = fdt.find_uart();       // compatible = &quot;ns16550a&quot;
+    auto uart_irq  = fdt.uart_interrupt();
+    UART uart(uart_addr);
     uart.init();
     uart.puts(&quot;SlipperBoot v0.1\n&quot;);
 
-    FDT fdt(fdt_addr);
     auto mem = fdt.memory();
+    auto virtio_addrs = fdt.find_virtio();  // compatible = &quot;virtio,mmio&quot;
 
-    VirtIOBlock disk;
+    VirtIOBlock disk(virtio_addrs[0]);
     if (!disk.probe()) fail(&quot;no disk&quot;);
 
-    static uint8_t kernel_buf[4_MB] __attribute__((aligned(512)));
+    static uint8_t kernel_buf[2_MB] __attribute__((aligned(512)));
 
     for (int i = 0; i &lt; KERNEL_SECTORS; i++) {
         disk.read(KERNEL_LBA + i, &amp;kernel_buf[i * 512]);
@@ -175,39 +180,44 @@ void _start() {
 </code></pre>
 <h2>UART (NS16550A)</h2>
 <pre><code class="language-cpp">struct UART {
-    static constexpr uintptr_t BASE = 0x10000000;
+    uintptr_t base;
 
-    template &lt;uintptr_t Off&gt;
-    using reg = volatile uint8_t *;
+    UART(uintptr_t addr) : base(addr) {}
+
+    volatile uint8_t* reg(uintptr_t off) {
+        return reinterpret_cast&lt;volatile uint8_t*&gt;(base + off);
+    }
 
     void init() {
-        reg&lt;3&gt;()[BASE] = 0x03;  // LCR: 8N1
-        reg&lt;2&gt;()[BASE] = 0x07;  // FCR: FIFO
-        reg&lt;1&gt;()[BASE] = 0x01;  // IER: RX IRQ
+        reg(3)[0] = 0x03;  // LCR: 8N1
+        reg(2)[0] = 0x07;  // FCR: FIFO
+        reg(1)[0] = 0x01;  // IER: RX IRQ
     }
 
     void put(char c) {
-        while (!(reg&lt;5&gt;()[BASE] &amp; (1 &lt;&lt; 5)));
-        reg&lt;0&gt;()[BASE] = c;
+        while (!(reg(5)[0] &amp; (1 &lt;&lt; 5)));
+        reg(0)[0] = c;
     }
 
     char get() {
-        while (!(reg&lt;5&gt;()[BASE] &amp; 1));
-        return reg&lt;0&gt;()[BASE];
+        while (!(reg(5)[0] &amp; 1));
+        return reg(0)[0];
     }
 };
 </code></pre>
-<p>Шаблонный доступ через <code>reg&lt;N&gt;()</code> - компилятор схлопнет в константное
-смещение. Никаких магических чисел в коде.</p>
-<h2>VirtIO Block</h2>
+<p>Адрес передаётся из FDT, не хардкодится.</p>
+<h2>VirtIO Block (v2 MMIO)</h2>
+<p>Sedna/OC2r реализует только <strong>v2 (modern) MMIO-транспорт</strong>:
+<code>VIRTIO_MMIO_VERSION = 2</code>, обязателен флаг <code>VIRTIO_F_VERSION_1</code> (bit 32).</p>
 <ul>
-<li>Legacy MMIO (одна страница vring через QueuePfn)</li>
-<li>Feature negotiation: ACK → DRIVER → FEATURES_OK → DRIVER_OK</li>
+<li>Регистры: <code>QueueDescLow/High</code>, <code>QueueDriverLow/High</code>,
+<code>QueueDeviceLow/High</code> + <code>QueueReady</code> (вместо Legacy <code>QueuePfn</code>)</li>
+<li>Feature negotiation: ACK → DRIVER → negotiate (вкл. <code>VIRTIO_F_VERSION_1</code>)
+→ <code>FEATURES_OK</code> → Queue setup → <code>QueueReady = 1</code> → <code>DRIVER_OK</code></li>
 <li>3 дескриптора на запрос: header + data + status</li>
 <li>Polling used ring (прерываний в bootloader не нужно)</li>
+<li>Адрес устройства и PLIC ID - из FDT, не хардкодить</li>
 </ul>
-<p>Проверить на OC2r: если отдаёт v2 MMIO (раздельные QueueDesc/QueueAvail/
-QueueUsed) - переписать под v2.</p>
 <h2>ELF парсер</h2>
 <ul>
 <li>Читает ELF64 header: magic, machine=RISCV(0xF3), type=EXEC</li>
@@ -217,9 +227,12 @@ QueueUsed) - переписать под v2.</p>
 </ul>
 <h2>FDT парсер</h2>
 <ul>
-<li>Ищет <code>memory</code> node в дереве</li>
-<li>Читает <code>reg</code> свойство: (start, size)</li>
-<li>Fallback: 0x80000000, 128MB если FDT нет</li>
+<li>Ищет <code>memory</code> node в дереве - читает <code>reg</code> (start, size)</li>
+<li>Ищет <code>compatible = &quot;ns16550a&quot;</code> - адрес UART + PLIC interrupt ID</li>
+<li>Ищет <code>compatible = &quot;virtio,mmio&quot;</code> - адреса VirtIO устройств + IRQ</li>
+<li>Fallback памяти: 0x80000000, 128MB если FDT нет</li>
+<li>Fallback UART: 0x10000000, IRQ 10 (только для QEMU)</li>
+<li>Адреса устройств - динамические, отказываемся от хардкода</li>
 </ul>
 <h2>Сборка</h2>
 <pre><code class="language-makefile">CXX = riscv64-unknown-elf-g++

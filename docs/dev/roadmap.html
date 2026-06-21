@@ -100,10 +100,10 @@ main li{margin-bottom:4px}
 <h2>v0.2 - SlipperBoot (загрузчик)</h2>
 <ul>
 <li>[ ] <strong>SlipperBoot</strong> на C++, без единого <code>.S</code> файла</li>
-<li>[ ] UART драйвер (вывод сообщений)</li>
-<li>[ ] VirtIO block (чтение диска)</li>
+<li>[ ] UART драйвер (адрес из FDT)</li>
+<li>[ ] VirtIO block v2 MMIO (чтение диска, адрес + IRQ из FDT)</li>
 <li>[ ] ELF64 парсер (header + program headers)</li>
-<li>[ ] FDT парсер (память, устройства)</li>
+<li>[ ] FDT парсер (память, устройства, UART, VirtIO - по compatible)</li>
 <li>[ ] Загрузка <code>kernel.elf</code> с диска и запуск</li>
 <li>[ ] Boot menu через UART (опционально)</li>
 </ul>
@@ -114,11 +114,11 @@ main li{margin-bottom:4px}
 <li>[ ] Round-robin scheduler по CLINT</li>
 <li>[ ] syscall: ecall handler</li>
 </ul>
-<h2>v0.4 - VirtIO block в ядре</h2>
+<h2>v0.4 - VirtIO block в ядре (v2 MMIO)</h2>
 <ul>
-<li>[ ] Уточнить Legacy vs v2 MMIO для OC2r</li>
+<li>[x] Подтверждён v2 MMIO (Sedna: <code>VIRTIO_MMIO_VERSION = 2</code>, обязателен <code>VIRTIO_F_VERSION_1</code>)</li>
 <li>[ ] Descriptor-based page allocator (contiguous)</li>
-<li>[ ] Чтение/запись секторов</li>
+<li>[ ] Чтение/запись секторов (драйвер под v2)</li>
 <li>[ ] Прерывания по завершению I/O</li>
 </ul>
 <h2>v0.5 - SlipFS + userspace</h2>

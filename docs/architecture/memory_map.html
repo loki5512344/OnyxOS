@@ -87,15 +87,26 @@ main li{margin-bottom:4px}
 <li><a href="../shell/commands.html">&nbsp;&nbsp;Commands</a></li>
 <li><a href="../shell/internals.html">&nbsp;&nbsp;Internals</a></li></ul></nav>
 <main><div class="breadcrumb"><a href="../">Docs</a> <span> / Architecture / Memory Map</span></div><h1>Карта памяти</h1>
-<h2>Устройства (MMIO)</h2>
-<table><thead><tr><th>Адрес</th><th>Устройство</th></tr></thead><tbody>
-<tr><td>0x02000000</td><td>CLINT</td></tr>
-<tr><td>0x0C000000</td><td>PLIC (QEMU virt)</td></tr>
-<tr><td>0x10000000</td><td>UART (NS16550A)</td></tr>
-<tr><td>0x10001000</td><td>VirtIO MMIO #0 (block)</td></tr>
-<tr><td>0x10002000</td><td>VirtIO MMIO #1</td></tr>
-<tr><td>...</td><td>...</td></tr>
+<blockquote>
+<p>Адреса UART, VirtIO и других MMIO-устройств (кроме CLINT, PLIC, SYSCON)
+выделяются динамически через FDT. Нижеприведённые значения - для QEMU
+virt и тестового стенда; на OC2r адреса могут отличаться.</p>
+</blockquote>
+<h2>Фиксированные устройства (MMIO)</h2>
+<table><thead><tr><th>Адрес</th><th>Устройство</th><th>Примечание</th></tr></thead><tbody>
+<tr><td>0x01000000</td><td>SYSCON</td><td>Системный контроллер (poweroff, reboot)</td></tr>
+<tr><td>0x02000000</td><td>CLINT</td><td>Таймер (mtime/mtimecmp)</td></tr>
+<tr><td>0x0C000000</td><td>PLIC</td><td>Контроллер прерываний</td></tr>
 </tbody></table>
+<h2>Динамические устройства (MMIO, из FDT)</h2>
+<p>Устройства добавляются через <code>addDevice()</code> в порядке регистрации на шине.
+Стартовый адрес: 0x10000000, шаг 0x1000. Искать по <code>compatible</code>:</p>
+<table><thead><tr><th>compatible</th><th>Устройство</th><th>Тип</th></tr></thead><tbody>
+<tr><td><code>`"ns16550a"`</code></td><td>UART (NS16550A)</td><td>последовательный порт</td></tr>
+<tr><td><code>`"virtio,mmio"`</code></td><td>VirtIO MMIO</td><td>block/network/console/9p</td></tr>
+</tbody></table>
+<p>Для UART и каждого VirtIO-устройства PLIC interrupt ID также назначается
+динамически - брать из <code>interrupts</code> свойства FDT-ноды.</p>
 <h2>RAM</h2>
 <table><thead><tr><th>Адрес</th><th>Что</th><th>Размер</th></tr></thead><tbody>
 <tr><td>0x80000000</td><td>SlipperBoot (текст + данные)</td><td>≤ 32KB</td></tr>
@@ -103,14 +114,19 @@ main li{margin-bottom:4px}
 <tr><td>0x80100000</td><td>SlipperBoot bss/data (опциональный резерв)</td><td>-</td></tr>
 <tr><td>0x80200000</td><td><strong>*<em>*SlipperOS kernel*</em>*</strong> (из ELF)</td><td>переменный</td></tr>
 <tr><td>0x80200000 + kernel_size</td><td>Heap (bump, page allocator)</td><td>до top</td></tr>
-<tr><td>memory_top</td><td>конец RAM (из FDT, ~128MB-1GB)</td><td>-</td></tr>
+<tr><td>memory_top</td><td>конец RAM (из FDT)</td><td>-</td></tr>
 </tbody></table>
+<blockquote>
+<p>RAM на OC2r: память собирается из карт памяти (Items.java),
+<code>maxAllocatedMemory = 512MB</code>. Реальный объём зависит от количества
+установленных карт (2/4/8/16MB каждая).</p>
+</blockquote>
 <h2>SlipperBoot layout (внутри 0x80000000)</h2>
 <pre><code>.text.boot   → _start() naked (inline asm)
 .text        → boot_main, uart, virtio, elf, fdt
 .rodata      → строки, константы
 .data        → глобалы (мало, только fifo)
-.bss         → буферы (kernel_buf[4MB])
+.bss         → буферы (kernel_buf[2MB])
 _stack       → 4KB в конце
 </code></pre></main>
 </body>

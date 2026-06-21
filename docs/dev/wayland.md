@@ -98,10 +98,11 @@ Hyprland требует:
 
 Реалистично: сначала свой compositor. wlroots портировать после стабилизации.
 
-## Когда
+## Когда (см. roadmap.md)
 
-1. v0.6 — VirtIO disk
-2. v0.7 — VirtIO-GPU (dumb buffer + mmap)
-3. v0.8 — минимальный compositor
-4. v1.0 — стабильный framebuffer + мышь/клавиатура
-5. v1.x — wlroots / weston / hyprland
+1. v0.4 — VirtIO block в ядре
+2. v0.6 — VirtIO-GPU (dumb buffer + mmap)
+3. v0.7 — минимальный compositor
+4. v0.8 — стабильное ядро + ввод
+5. v1.0 — framebuffer + мышь/клавиатура
+6. v1.x — wlroots / weston / hyprland (отдельная ветка C++)
