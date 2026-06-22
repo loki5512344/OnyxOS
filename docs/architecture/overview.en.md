@@ -25,7 +25,7 @@ C++ bootloader (zero `.S` files). Runs in S-mode after OpenSBI.
 - ELF64 parser — load segments into memory
 - Jump to kernel (a0=hart_id, a1=fdt)
 
-**Status:** v0.1 (asm prototype) → v0.2 (C++ — planned)
+**Status:** v0.4 — UART, VirtIO, SDHCI, FAT32/EXT4, ELF, FDT, boot menu
 
 ---
 

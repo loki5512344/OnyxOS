@@ -1,6 +1,6 @@
 # Boot Sequence
 
-> **Status**: SlipperBoot — design / not yet implemented (v0.2, see roadmap).
+> **Status**: v0.4 — C++ bootloader. UART, FDT, VirtIO, SDHCI, FAT32/EXT4, ELF, boot menu.
 > Current boot: OpenSBI → `boot/boot.S` → `kernel_main`.
 
 ## OpenSBI (M-mode)
@@ -8,7 +8,7 @@
 OpenSBI (built into OC2r) starts in M-mode. Configures interrupt
 delegation, passes control to 0x80000000 in S-mode.
 
-## SlipperBoot (S-mode, C++) — v0.2
+## SlipperBoot (S-mode, C++) — in development
 
 Receives control at address 0x80000000. Written in pure C++,
 the only `asm volatile` is the naked `_start()`.

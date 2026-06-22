@@ -64,15 +64,17 @@ main li{margin-bottom:4px}
 <li>[x] Panic handler</li>
 <li>[x] Разделение на SlipperBoot / SlipperKernel / SlipperOS</li>
 </ul>
-<h2>v0.2 - SlipperBoot: загрузчик</h2>
+<h2>SlipperBoot: загрузчик (v0.4)</h2>
 <ul>
-<li>[ ] <strong>SlipperBoot</strong> на C++, без единого <code>.S</code> файла</li>
-<li>[ ] UART драйвер (адрес из FDT)</li>
-<li>[ ] VirtIO block v2 MMIO (чтение диска, адрес + IRQ из FDT)</li>
-<li>[ ] ELF64 парсер (header + program headers)</li>
-<li>[ ] FDT парсер (память, устройства, UART, VirtIO - по compatible)</li>
-<li>[ ] Загрузка <code>kernel.elf</code> с диска и запуск</li>
-<li>[ ] Boot menu через UART (опционально)</li>
+<li>[x] Точка входа _start (naked C++, inline asm)</li>
+<li>[x] UART драйвер (NS16550A, адрес из FDT)</li>
+<li>[x] VirtIO block v2 MMIO (probe, read_sector)</li>
+<li>[x] SDHCI driver (probe, read_sector)</li>
+<li>[x] FAT32 + EXT4 reader</li>
+<li>[x] ELF64 парсер (valid, check_safe, load_all)</li>
+<li>[x] FDT парсер (memory, UART, VirtIO, SDHCI)</li>
+<li>[x] Boot menu (выбор устройства)</li>
+<li>[x] Загрузка <code>kernel.elf</code> с диска и запуск</li>
 </ul>
 <h2>v0.3 - SlipperKernel: прерывания и задачи</h2>
 <ul>

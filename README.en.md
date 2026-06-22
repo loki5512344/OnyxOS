@@ -15,7 +15,7 @@ Slipper/
 
 | Component | Lang | Role | Status |
 |-----------|------|------|--------|
-| **SlipperBoot** | C++ | UART, FDT, VirtIO, ELF loader | Planned (v0.2) |
+| **SlipperBoot** | C++ | UART, FDT, VirtIO, SDHCI, FAT32/EXT4, ELF, boot menu | v0.4 |
 | **SlipperKernel** | Rust | Monolithic kernel: MM, processes, drivers, shell | In progress (v0.1) |
 | **SlipperOS** | — | Documentation, build scripts, future userspace | Forming |
 
@@ -50,7 +50,7 @@ make
 | Version | Component | Milestone |
 |---------|-----------|-----------|
 | v0.1 | SlipperKernel | Kernel skeleton: UART, MM, drivers, shell — **done** |
-| v0.2 | SlipperBoot | C++ bootloader: FDT, VirtIO, ELF |
+| — | SlipperBoot | C++ bootloader: FDT, VirtIO, ELF |
 | v0.3 | SlipperKernel | Traps, tasks, round-robin, syscall |
 | v0.4 | SlipperKernel | VirtIO block v2 MMIO |
 | v0.5 | Both | SlipFS + first userspace |

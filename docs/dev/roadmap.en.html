@@ -61,15 +61,17 @@ main li{margin-bottom:4px}
 <li>[x] Slip shell (7 commands)</li>
 <li>[x] Panic handler</li>
 </ul>
-<h2>v0.2 - SlipperBoot (bootloader)</h2>
+<h2>SlipperBoot (v0.4)</h2>
 <ul>
-<li>[ ] <strong>SlipperBoot</strong> in C++, without a single <code>.S</code> file</li>
-<li>[ ] UART driver (address from FDT)</li>
-<li>[ ] VirtIO block v2 MMIO (disk read, address + IRQ from FDT)</li>
-<li>[ ] ELF64 parser (header + program headers)</li>
-<li>[ ] FDT parser (memory, devices, UART, VirtIO - by compatible)</li>
-<li>[ ] Load <code>kernel.elf</code> from disk and launch</li>
-<li>[ ] Boot menu via UART (optional)</li>
+<li>[x] _start entry (naked C++, inline asm)</li>
+<li>[x] UART driver (NS16550A, address from FDT)</li>
+<li>[x] VirtIO block v2 MMIO (probe, read_sector)</li>
+<li>[x] SDHCI driver (probe, read_sector)</li>
+<li>[x] FAT32 + EXT4 reader</li>
+<li>[x] ELF64 parser (valid, check_safe, load_all)</li>
+<li>[x] FDT parser (memory, UART, VirtIO, SDHCI)</li>
+<li>[x] Boot menu (device selection)</li>
+<li>[x] Load &amp; jump to <code>kernel.elf</code></li>
 </ul>
 <h2>v0.3 - Interrupts and tasks</h2>
 <ul>

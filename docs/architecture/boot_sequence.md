@@ -23,17 +23,16 @@ Slip shell (UART CLI)
 прерываний, передаёт управление на адрес 0x80000000 в S-mode.
 Регистры: `a0 = hart_id`, `a1 = fdt_ptr`.
 
-## Стадия 2: SlipperBoot (S-mode, C++) — v0.2
+## Стадия 2: SlipperBoot (S-mode, C++) — в разработке
 
-> **Текущий статус:** v0.1 — ассемблерный `boot.S` внутри SlipperKernel.
-> v0.2 — полноценный C++ загрузчик в `Slipper/SlipperBoot/` (план).
+> **Текущий статус:** v0.4 — C++ загрузчик в `Slipper/SlipperBoot/`. UART, FDT, VirtIO, SDHCI, FAT32/EXT4, ELF, boot menu.
 
 Встречает управление по адресу 0x80000000.
 
 1. **Hart select** — `mhartid` → hart 0 работает, остальные `wfi`
 2. **BSS clear** — обнуляет `.bss`
 3. **Stack** — `sp = &_stack_end`
-4. **UART init** — NS16550A, "SlipperBoot v0.2\n"
+4. **UART init** — NS16550A, "SlipperBoot\n"
 5. **FDT parse** — читает Device Tree (a1), определяет память, UART, VirtIO
 6. **VirtIO probe** — ищет VirtIO block device, читает LBA 0
 7. **ELF load** — находит `kernel.elf`, парсит Program Headers, копирует сегменты

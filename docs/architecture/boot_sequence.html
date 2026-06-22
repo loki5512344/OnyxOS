@@ -68,17 +68,16 @@ Slip shell (UART CLI)
 <p>Встроен в OC2r или прошит на Milk-V Duo S. Настраивает делегирование
 прерываний, передаёт управление на адрес 0x80000000 в S-mode.
 Регистры: <code>a0 = hart_id</code>, <code>a1 = fdt_ptr</code>.</p>
-<h2>Стадия 2: SlipperBoot (S-mode, C++) - v0.2</h2>
+<h2>Стадия 2: SlipperBoot (S-mode, C++) - в разработке</h2>
 <blockquote>
-<p><strong>Текущий статус:</strong> v0.1 - ассемблерный <code>boot.S</code> внутри SlipperKernel.
-v0.2 - полноценный C++ загрузчик в <code>Slipper/SlipperBoot/</code> (план).</p>
+<p><strong>Текущий статус:</strong> v0.4 - C++ загрузчик в <code>Slipper/SlipperBoot/</code>. UART, FDT, VirtIO, SDHCI, FAT32/EXT4, ELF, boot menu.</p>
 </blockquote>
 <p>Встречает управление по адресу 0x80000000.</p>
 <ol>
 <li><strong>Hart select</strong> - <code>mhartid</code> → hart 0 работает, остальные <code>wfi</code></li>
 <li><strong>BSS clear</strong> - обнуляет <code>.bss</code></li>
 <li><strong>Stack</strong> - <code>sp = &amp;_stack_end</code></li>
-<li><strong>UART init</strong> - NS16550A, &quot;SlipperBoot v0.2\n&quot;</li>
+<li><strong>UART init</strong> - NS16550A, &quot;SlipperBoot\n&quot;</li>
 <li><strong>FDT parse</strong> - читает Device Tree (a1), определяет память, UART, VirtIO</li>
 <li><strong>VirtIO probe</strong> - ищет VirtIO block device, читает LBA 0</li>
 <li><strong>ELF load</strong> - находит <code>kernel.elf</code>, парсит Program Headers, копирует сегменты</li>

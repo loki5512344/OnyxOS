@@ -60,7 +60,7 @@ main li{margin-bottom:4px}
 <hr />
 <h2>Components</h2>
 <table><thead><tr><th>Component</th><th>Lang</th><th>Role</th><th>Status</th></tr></thead><tbody>
-<tr><td><strong>*<em>*SlipperBoot*</em>*</strong></td><td>C++</td><td>UART, FDT, VirtIO, ELF loader</td><td>Planned (v0.2)</td></tr>
+<tr><td><strong>*<em>*SlipperBoot*</em>*</strong></td><td>C++</td><td>UART, FDT, VirtIO, SDHCI, FAT32/EXT4, ELF, boot menu</td><td>v0.4</td></tr>
 <tr><td><strong>*<em>*SlipperKernel*</em>*</strong></td><td>Rust</td><td>Monolithic kernel: MM, processes, drivers, shell</td><td>In progress (v0.1)</td></tr>
 <tr><td><strong>*<em>*SlipperOS*</em>*</strong></td><td>-</td><td>Documentation, build scripts, future userspace</td><td>Forming</td></tr>
 </tbody></table>
@@ -84,7 +84,7 @@ make
 <h2>Roadmap</h2>
 <table><thead><tr><th>Version</th><th>Component</th><th>Milestone</th></tr></thead><tbody>
 <tr><td>v0.1</td><td>SlipperKernel</td><td>Kernel skeleton: UART, MM, drivers, shell - <strong>*<em>*done*</em>*</strong></td></tr>
-<tr><td>v0.2</td><td>SlipperBoot</td><td>C++ bootloader: FDT, VirtIO, ELF</td></tr>
+<tr><td>-</td><td>SlipperBoot</td><td>C++ bootloader: FDT, VirtIO, ELF</td></tr>
 <tr><td>v0.3</td><td>SlipperKernel</td><td>Traps, tasks, round-robin, syscall</td></tr>
 <tr><td>v0.4</td><td>SlipperKernel</td><td>VirtIO block v2 MMIO</td></tr>
 <tr><td>v0.5</td><td>Both</td><td>SlipFS + first userspace</td></tr>

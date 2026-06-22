@@ -12,14 +12,16 @@
 - [x] Panic handler
 - [x] Разделение на SlipperBoot / SlipperKernel / SlipperOS
 
-## v0.2 — SlipperBoot: загрузчик
-- [ ] **SlipperBoot** на C++, без единого `.S` файла
-- [ ] UART драйвер (адрес из FDT)
-- [ ] VirtIO block v2 MMIO (чтение диска, адрес + IRQ из FDT)
-- [ ] ELF64 парсер (header + program headers)
-- [ ] FDT парсер (память, устройства, UART, VirtIO — по compatible)
-- [ ] Загрузка `kernel.elf` с диска и запуск
-- [ ] Boot menu через UART (опционально)
+## SlipperBoot: загрузчик (v0.4)
+- [x] Точка входа _start (naked C++, inline asm)
+- [x] UART драйвер (NS16550A, адрес из FDT)
+- [x] VirtIO block v2 MMIO (probe, read_sector)
+- [x] SDHCI driver (probe, read_sector)
+- [x] FAT32 + EXT4 reader
+- [x] ELF64 парсер (valid, check_safe, load_all)
+- [x] FDT парсер (memory, UART, VirtIO, SDHCI)
+- [x] Boot menu (выбор устройства)
+- [x] Загрузка `kernel.elf` с диска и запуск
 
 ## v0.3 — SlipperKernel: прерывания и задачи
 - [ ] Trap handler (S-mode, `stvec`)

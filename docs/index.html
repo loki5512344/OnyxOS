@@ -60,7 +60,7 @@ main li{margin-bottom:4px}
 <hr />
 <h2>Компоненты</h2>
 <table><thead><tr><th>Компонент</th><th>Язык</th><th>Назначение</th><th>Статус</th></tr></thead><tbody>
-<tr><td><strong>*<em>*SlipperBoot*</em>*</strong></td><td>C++</td><td>Первичная загрузка: UART, FDT, VirtIO, ELF-парсер</td><td>План (v0.2)</td></tr>
+<tr><td><strong>*<em>*SlipperBoot*</em>*</strong></td><td>C++</td><td>UART, FDT, VirtIO, SDHCI, FAT32/EXT4, ELF, boot menu</td><td>v0.4</td></tr>
 <tr><td><strong>*<em>*SlipperKernel*</em>*</strong></td><td>Rust</td><td>Монолитное ядро: MM, процессы, драйверы, shell</td><td>В разработке (v0.1)</td></tr>
 <tr><td><strong>*<em>*SlipperOS*</em>*</strong></td><td>-</td><td>Документация, билд-скрипты, в будущем - userspace</td><td>Активно</td></tr>
 </tbody></table>
@@ -84,7 +84,7 @@ make
 <h2>План работ</h2>
 <table><thead><tr><th>Версия</th><th>Компонент</th><th>Что делаем</th></tr></thead><tbody>
 <tr><td>v0.1</td><td>SlipperKernel</td><td>Костяк ядра: UART, MM, драйверы, shell - <strong>*<em>*сделано*</em>*</strong></td></tr>
-<tr><td>v0.2</td><td>SlipperBoot</td><td>Загрузчик на C++: FDT, VirtIO, ELF</td></tr>
+<tr><td>-</td><td>SlipperBoot</td><td>Загрузчик на C++: FDT, VirtIO, ELF</td></tr>
 <tr><td>v0.3</td><td>SlipperKernel</td><td>Прерывания, задачи, round-robin, syscall</td></tr>
 <tr><td>v0.4</td><td>SlipperKernel</td><td>VirtIO block v2 MMIO в ядре</td></tr>
 <tr><td>v0.5</td><td>Оба</td><td>SlipFS + первый userspace</td></tr>

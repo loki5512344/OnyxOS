@@ -9,14 +9,16 @@
 - [x] Slip shell (7 commands)
 - [x] Panic handler
 
-## v0.2 — SlipperBoot (bootloader)
-- [ ] **SlipperBoot** in C++, without a single `.S` file
-- [ ] UART driver (address from FDT)
-- [ ] VirtIO block v2 MMIO (disk read, address + IRQ from FDT)
-- [ ] ELF64 parser (header + program headers)
-- [ ] FDT parser (memory, devices, UART, VirtIO — by compatible)
-- [ ] Load `kernel.elf` from disk and launch
-- [ ] Boot menu via UART (optional)
+## SlipperBoot (v0.4)
+- [x] _start entry (naked C++, inline asm)
+- [x] UART driver (NS16550A, address from FDT)
+- [x] VirtIO block v2 MMIO (probe, read_sector)
+- [x] SDHCI driver (probe, read_sector)
+- [x] FAT32 + EXT4 reader
+- [x] ELF64 parser (valid, check_safe, load_all)
+- [x] FDT parser (memory, UART, VirtIO, SDHCI)
+- [x] Boot menu (device selection)
+- [x] Load & jump to `kernel.elf`
 
 ## v0.3 — Interrupts and tasks
 - [ ] Trap handler (S-mode, `stvec`)

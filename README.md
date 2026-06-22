@@ -15,7 +15,7 @@ Slipper/
 
 | Компонент | Язык | Назначение | Статус |
 |-----------|------|-----------|--------|
-| **SlipperBoot** | C++ | Первичная загрузка: UART, FDT, VirtIO, ELF-парсер | План (v0.2) |
+| **SlipperBoot** | C++ | UART, FDT, VirtIO, SDHCI, FAT32/EXT4, ELF, boot menu | v0.4 |
 | **SlipperKernel** | Rust | Монолитное ядро: MM, процессы, драйверы, shell | В разработке (v0.1) |
 | **SlipperOS** | — | Документация, билд-скрипты, в будущем — userspace | Активно |
 
@@ -50,7 +50,7 @@ make
 | Версия | Компонент | Что делаем |
 |--------|-----------|-----------|
 | v0.1 | SlipperKernel | Костяк ядра: UART, MM, драйверы, shell — **сделано** |
-| v0.2 | SlipperBoot | Загрузчик на C++: FDT, VirtIO, ELF |
+| — | SlipperBoot | Загрузчик на C++: FDT, VirtIO, ELF |
 | v0.3 | SlipperKernel | Прерывания, задачи, round-robin, syscall |
 | v0.4 | SlipperKernel | VirtIO block v2 MMIO в ядре |
 | v0.5 | Оба | SlipFS + первый userspace |

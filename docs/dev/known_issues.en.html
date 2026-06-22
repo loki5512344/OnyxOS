@@ -82,7 +82,7 @@ wording from old docs - configure <code>stvec</code>, not <code>mtvec</code>.</p
 <p><code>kernel/drivers/uart.rs</code> (0x10000000), <code>kernel/drivers/virtio/block.rs</code>
 (0x10001000, IRQ 1-8), both kernel and bootloader currently hardcode
 addresses and IRQs. This will not work on OC2r with dynamic device placement.</p>
-<p><strong>Plan</strong>: v0.2 (SlipperBoot) - FDT parser for UART and VirtIO;
+<p><strong>Plan</strong>: SlipperBoot - FDT parser for UART and VirtIO;
 v0.3 or v0.4 - pass FDT to kernel and remove hardcoding.</p>
 <h2>Userspace: ELF load + syscalls not implemented</h2>
 <p>ELF loader (<code>elf_loading.md</code>) is designed but not implemented.
@@ -91,7 +91,7 @@ Depends on v0.4 (VirtIO block) and v0.5 (SlipFS).</p>
 <p><code>shell/slip.rs</code> - bug: <code>INPUT_LEN</code> is reset to 0 before the line is
 processed, causing <code>read_line()</code> to always return <code>None</code>, so commands
 are never executed.</p>
-<p><strong>Plan</strong>: fix before v0.2.</p>
+<p><strong>Plan</strong>: fix in SlipperBoot.</p>
 <h2>Sv39: map_page() does not allocate page tables</h2>
 <p><code>mm/map.rs</code> - <code>map_page()</code> checks <code>pte.is_valid()</code> but when the table
 is missing it simply returns instead of allocating a new page for the

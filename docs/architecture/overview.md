@@ -25,7 +25,7 @@ SlipperOS (userspace — будущее)
 - ELF64-парсер — загрузка сегментов в память
 - Передача управления ядру (a0=hart_id, a1=fdt)
 
-**Статус:** v0.1 (прототип на asm) → v0.2 (C++ реализация — план)
+**Статус:** v0.4 — UART, VirtIO, SDHCI, FAT32/EXT4, ELF, FDT, boot menu
 
 ---
 
