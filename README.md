@@ -1,12 +1,12 @@
-# SlipperOS
+# OnyxOS
 
 Операционная система для RISC-V (OC2r / Milk-V Duo S). Состоит из трёх компонентов:
 
 ```
-Slipper/
-├── SlipperBoot/     — загрузчик (C++)
-├── SlipperKernel/   — ядро (Rust, no_std)
-└── SlipperOS/       — системный слой (доки, скрипты, userspace)
+Onyx/
+├── OnyxBoot/     — загрузчик (C++)
+├── OnyxKernel/   — ядро (Rust, no_std)
+└── OnyxOS/       — системный слой (доки, скрипты, userspace)
 ```
 
 ---
@@ -15,31 +15,31 @@ Slipper/
 
 | Компонент | Язык | Назначение | Статус |
 |-----------|------|-----------|--------|
-| **SlipperBoot** | C++ | UART, FDT, VirtIO, SDHCI, FAT32/EXT4, ELF, boot menu | v0.4 |
-| **SlipperKernel** | Rust | Монолитное ядро: MM, процессы, драйверы, shell | В разработке (v0.1) |
-| **SlipperOS** | — | Документация, билд-скрипты, в будущем — userspace | Активно |
+| **OnyxBoot** | C++ | UART, FDT, VirtIO, SDHCI, FAT32/EXT4, ELF, boot menu | v0.4 |
+| **OnyxKernel** | Rust | Монолитное ядро: MM, процессы, драйверы, shell | В разработке (v0.1) |
+| **OnyxOS** | — | Документация, билд-скрипты, в будущем — userspace | Активно |
 
 ---
 
 ## Сборка
 
-### SlipperKernel
+### OnyxKernel
 
 ```bash
-cd SlipperKernel
+cd OnyxKernel
 cargo build --release
 
 # Запуск в QEMU
 qemu-system-riscv64 \
   -machine virt -m 128M -nographic \
   -bios default \
-  -kernel target/riscv64gc-unknown-none-elf/release/slipperos
+  -kernel target/riscv64gc-unknown-none-elf/release/Onyxos
 ```
 
-### SlipperBoot
+### OnyxBoot
 
 ```bash
-cd SlipperBoot
+cd OnyxBoot
 make
 ```
 
@@ -49,12 +49,12 @@ make
 
 | Версия | Компонент | Что делаем |
 |--------|-----------|-----------|
-| v0.1 | SlipperKernel | Костяк ядра: UART, MM, драйверы, shell — **сделано** |
-| — | SlipperBoot | Загрузчик на C++: FDT, VirtIO, ELF |
-| v0.3 | SlipperKernel | Прерывания, задачи, round-robin, syscall |
-| v0.4 | SlipperKernel | VirtIO block v2 MMIO в ядре |
+| v0.1 | OnyxKernel | Костяк ядра: UART, MM, драйверы, shell — **сделано** |
+| — | OnyxBoot | Загрузчик на C++: FDT, VirtIO, ELF |
+| v0.3 | OnyxKernel | Прерывания, задачи, round-robin, syscall |
+| v0.4 | OnyxKernel | VirtIO block v2 MMIO в ядре |
 | v0.5 | Оба | SlipFS + первый userspace |
-| v0.6 | SlipperOS | CLI-утилиты, init-процесс |
+| v0.6 | OnyxOS | CLI-утилиты, init-процесс |
 | v1.0 | Все | Slip shell как userspace, picolibc, модули |
 
 Подробнее — [docs/dev/roadmap.md](docs/dev/roadmap.md)
