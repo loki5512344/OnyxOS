@@ -1,4 +1,4 @@
-# SlipperOS
+# OnyxOS
 
 A minimalist kernel for OC2r, written in Rust + C++ (bootloader).
 
