@@ -51,52 +51,53 @@ main li{margin-bottom:4px}
   <a href="boot_sequence.en.html">EN</a>
 </div></nav>
 <main><div class="breadcrumb"><a href="../">Docs</a> <span> / Architecture / Boot Sequence</span></div><h1>Последовательность загрузки</h1>
-<blockquote>
-<p><strong>Статус</strong>: SlipperBoot - design / not yet implemented (v0.2, см. roadmap).
-Текущая загрузка: OpenSBI → <code>boot/boot.S</code> → <code>kernel_main</code>.</p>
-</blockquote>
-<h2>OpenSBI (M-mode)</h2>
-<p>OpenSBI (вшит в OC2r) стартует в M-mode. Настраивает делегирование
-прерываний, передаёт управление на 0x80000000 в S-mode.</p>
-<h2>SlipperBoot (S-mode, C++) - v0.2</h2>
-<p>Встречает управление по адресу 0x80000000. Написан на чистом C++,
-единственный <code>asm volatile</code> - naked <code>_start()</code>.</p>
-<ol>
-<li><strong>Hart select</strong> - <code>mhartid</code> → hart 0 работает, остальные <code>wfi</code>.</li>
-<li><strong>BSS clear</strong> - обнуляет <code>.bss</code> через inline asm в _start().</li>
-<li><strong>Stack</strong> - <code>sp = &amp;_stack_end</code>.</li>
-<li><strong>UART init</strong> - NS16550A, вывод &quot;SlipperBoot v0.1\n&quot;.</li>
-<li><strong>FDT parse</strong> - читает Device Tree (a1), определяет размер памяти.</li>
-<li><strong>VirtIO probe</strong> - ищет VirtIO block device, читает LBA.</li>
-<li><strong>ELF load</strong> - находит <code>kernel.elf</code> на диске, парсит Program Headers,
-копирует сегменты по адресам из ELF (0x80200000).</li>
-<li><strong>Entry</strong> - прыгает на точку входа ядра, передавая a0=hart_id, a1=fdt.</li>
-</ol>
+<p>Трёхстадийная загрузка: OpenSBI → SlipperBoot → SlipperKernel.</p>
 <pre><code>OpenSBI (M-mode)
+    ↓  a0=hart_id, a1=fdt_ptr
+SlipperBoot (S-mode, C++)
+    │  uart_init(), fdt_parse(), virtio_read(kernel.elf)
+    ↓  a0=hart_id, a1=fdt_ptr
+SlipperKernel (S-mode, Rust)
+    │  kernel_main()
+    │  uart, plic, clint, mm, sched, shell
     ↓
-SlipperBoot @ 0x80000000 (S-mode, C++)
-    │  uart_init()
-    │  fdt_parse()
-    │  virtio_read(kernel.elf)
-    │  elf_load()
-    ↓
-SlipperOS @ 0x80200000 (S-mode, Rust)
+Slip shell (UART CLI)
 </code></pre>
-<h2>SlipperOS kernel (S-mode, Rust) - реализовано (v0.1)</h2>
-<p>Загружается SlipperBoot'ом по адресу из ELF. Точка входа - <code>kernel_main</code>.</p>
+<hr />
+<h2>Стадия 1: OpenSBI (M-mode)</h2>
+<p>Встроен в OC2r или прошит на Milk-V Duo S. Настраивает делегирование
+прерываний, передаёт управление на адрес 0x80000000 в S-mode.
+Регистры: <code>a0 = hart_id</code>, <code>a1 = fdt_ptr</code>.</p>
+<h2>Стадия 2: SlipperBoot (S-mode, C++) - v0.2</h2>
+<blockquote>
+<p><strong>Текущий статус:</strong> v0.1 - ассемблерный <code>boot.S</code> внутри SlipperKernel.
+v0.2 - полноценный C++ загрузчик в <code>Slipper/SlipperBoot/</code> (план).</p>
+</blockquote>
+<p>Встречает управление по адресу 0x80000000.</p>
+<ol>
+<li><strong>Hart select</strong> - <code>mhartid</code> → hart 0 работает, остальные <code>wfi</code></li>
+<li><strong>BSS clear</strong> - обнуляет <code>.bss</code></li>
+<li><strong>Stack</strong> - <code>sp = &amp;_stack_end</code></li>
+<li><strong>UART init</strong> - NS16550A, &quot;SlipperBoot v0.2\n&quot;</li>
+<li><strong>FDT parse</strong> - читает Device Tree (a1), определяет память, UART, VirtIO</li>
+<li><strong>VirtIO probe</strong> - ищет VirtIO block device, читает LBA 0</li>
+<li><strong>ELF load</strong> - находит <code>kernel.elf</code>, парсит Program Headers, копирует сегменты</li>
+<li><strong>Entry</strong> - прыгает на точку входа ядра (a0=hart_id, a1=fdt)</li>
+</ol>
+<h2>Стадия 3: SlipperKernel (S-mode, Rust)</h2>
+<p>Загружается по адресу из ELF (0x80200000). Точка входа - <code>kernel_main</code>:</p>
 <ol>
 <li><strong>UART init</strong> - &quot;SlipperOS v0.1 booting...&quot;</li>
-<li><strong>print_seal</strong> - аски тюлень</li>
+<li><strong>print_seal</strong> - аски-тюлень</li>
 <li><strong>PLIC init</strong> - priority, enables, threshold</li>
 <li><strong>CLINT init</strong> - mtimecmp = mtime + slice</li>
-<li><strong>MM init</strong> - page allocator из _end..memory_top</li>
+<li><strong>MM init</strong> - page allocator из <code>_end..memory_top</code></li>
 <li><strong>Sched init</strong> - idle task</li>
 <li><strong>Shell start</strong> - &quot;slip&gt; ready&quot;</li>
 </ol>
 <h2>S-mode vs M-mode</h2>
-<p>SlipperOS работает в S-mode. OpenSBI выполняет M-mode bootstrap
+<p>SlipperKernel работает в S-mode. OpenSBI выполняет M-mode bootstrap
 и делегирует трапы.</p>
-<h3>Регистры</h3>
 <table><thead><tr><th>Назначение</th><th>M-mode</th><th>S-mode</th></tr></thead><tbody>
 <tr><td>Trap vector</td><td><code>`mtvec`</code></td><td><code>`stvec`</code></td></tr>
 <tr><td>Exception PC</td><td><code>`mepc`</code></td><td><code>`sepc`</code></td></tr>

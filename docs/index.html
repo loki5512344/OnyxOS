@@ -50,73 +50,49 @@ main li{margin-bottom:4px}
   <a href="index.html" class="active">RU</a>
   <a href="index.en.html">EN</a>
 </div></nav>
-<main><h1>SlipperOS!</h1>
-<p><a href="../LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3" /></a>
-<a href="https://riscv.org"><img src="https://img.shields.io/badge/arch-RISCV64-green" alt="Arch: RISC-V 64" /></a>
-<a href=""><img src="https://img.shields.io/badge/status-development-yellow" alt="Status" /></a>
-<a href="https://rust-lang.org"><img src="https://img.shields.io/badge/rust-nightly_2026--06--01-orange" alt="Rust" /></a>
-<a href=""><img src="https://img.shields.io/badge/lines-3500%2B-blue" alt="Lines" /></a>
-<a href=""><img src="https://img.shields.io/badge/target-OC2r-8A2BE2" alt="OC2r" /></a></p>
-<p>A minimalist RISC-V 64-bit kernel written in Rust. Monolithic design, S-mode, built for <a href="https://github.com/loki5512344/SlipperOS">OC2r</a>.</p>
+<main><h1>SlipperOS</h1>
+<p>Операционная система для RISC-V (OC2r / Milk-V Duo S). Состоит из трёх компонентов:</p>
+<pre><code>Slipper/
+├── SlipperBoot/     - загрузчик (C++)
+├── SlipperKernel/   - ядро (Rust, no_std)
+└── SlipperOS/       - системный слой (доки, скрипты, userspace)
+</code></pre>
 <hr />
-<h2>Quick Start</h2>
-<pre><code class="language-bash"># Build
+<h2>Компоненты</h2>
+<table><thead><tr><th>Компонент</th><th>Язык</th><th>Назначение</th><th>Статус</th></tr></thead><tbody>
+<tr><td><strong>*<em>*SlipperBoot*</em>*</strong></td><td>C++</td><td>Первичная загрузка: UART, FDT, VirtIO, ELF-парсер</td><td>План (v0.2)</td></tr>
+<tr><td><strong>*<em>*SlipperKernel*</em>*</strong></td><td>Rust</td><td>Монолитное ядро: MM, процессы, драйверы, shell</td><td>В разработке (v0.1)</td></tr>
+<tr><td><strong>*<em>*SlipperOS*</em>*</strong></td><td>-</td><td>Документация, билд-скрипты, в будущем - userspace</td><td>Активно</td></tr>
+</tbody></table>
+<hr />
+<h2>Сборка</h2>
+<h3>SlipperKernel</h3>
+<pre><code class="language-bash">cd SlipperKernel
 cargo build --release
 
-# Run in QEMU
+# Запуск в QEMU
 qemu-system-riscv64 \
   -machine virt -m 128M -nographic \
   -bios default \
   -kernel target/riscv64gc-unknown-none-elf/release/slipperos
 </code></pre>
-<p>Once booted, type <code>help</code> in the shell.</p>
-<hr />
-<h2>Boot Flow</h2>
-<pre><code> OpenSBI (M-mode)
-     |
- [boot/boot.S]      ← temporary, replaced by SlipperBoot
-     |
- SlipperOS (S-mode, Rust)
-  |-- [kernel/main.rs]    UART, PLIC, CLINT init
-  |-- [kernel/lib.rs]     module wiring
-  |-- [kernel/mm/]        bump + page allocator + Sv39
-  |-- [kernel/proc/]      tasks, scheduler, context switch
-  |-- [kernel/drivers/]   UART, VirtIO block
-  |-- [kernel/fs/]        SlipFS block filesystem
-  +-- [kernel/shell/]     slip shell (UART CLI)
+<h3>SlipperBoot</h3>
+<pre><code class="language-bash">cd SlipperBoot
+make
 </code></pre>
 <hr />
-<h2>Components</h2>
-<table><thead><tr><th>Component</th><th>Status</th><th>Source</th></tr></thead><tbody>
-<tr><td>UART (NS16550A)</td><td>done</td><td><a href="https://github.com/loki5512344/SlipperOS/blob/main/kernel/drivers/uart.rs">kernel/drivers/uart.rs</a></td></tr>
-<tr><td>CLINT timer</td><td>done</td><td><a href="https://github.com/loki5512344/SlipperOS/blob/main/kernel/drivers/clint.rs">kernel/drivers/clint.rs</a></td></tr>
-<tr><td>PLIC interrupts</td><td>done</td><td><a href="https://github.com/loki5512344/SlipperOS/blob/main/kernel/drivers/plic.rs">kernel/drivers/plic.rs</a></td></tr>
-<tr><td>Bump allocator</td><td>done</td><td><a href="https://github.com/loki5512344/SlipperOS/blob/main/kernel/mm/bump.rs">kernel/mm/bump.rs</a></td></tr>
-<tr><td>Page allocator</td><td>done</td><td><a href="https://github.com/loki5512344/SlipperOS/blob/main/kernel/mm/page.rs">kernel/mm/page.rs</a></td></tr>
-<tr><td>Sv39 page tables</td><td>done</td><td><a href="https://github.com/loki5512344/SlipperOS/blob/main/kernel/mm/map.rs">kernel/mm/map.rs</a></td></tr>
-<tr><td>Round-robin scheduler</td><td>wip</td><td><a href="https://github.com/loki5512344/SlipperOS/blob/main/kernel/proc/sched.rs">kernel/proc/sched.rs</a></td></tr>
-<tr><td>Context switch</td><td>wip</td><td><a href="https://github.com/loki5512344/SlipperOS/blob/main/kernel/proc/context.rs">kernel/proc/context.rs</a></td></tr>
-<tr><td>VirtIO block</td><td>wip</td><td><a href="https://github.com/loki5512344/SlipperOS/blob/main/kernel/drivers/virtio/block.rs">kernel/drivers/virtio/block.rs</a></td></tr>
-<tr><td>SlipFS</td><td>planned</td><td><a href="https://github.com/loki5512344/SlipperOS/blob/main/kernel/fs/slipfs.rs">kernel/fs/slipfs.rs</a></td></tr>
-<tr><td>Trap handler</td><td>planned</td><td><a href="kernel/interrupts.html">docs/kernel/interrupts.html</a></td></tr>
+<h2>План работ</h2>
+<table><thead><tr><th>Версия</th><th>Компонент</th><th>Что делаем</th></tr></thead><tbody>
+<tr><td>v0.1</td><td>SlipperKernel</td><td>Костяк ядра: UART, MM, драйверы, shell - <strong>*<em>*сделано*</em>*</strong></td></tr>
+<tr><td>v0.2</td><td>SlipperBoot</td><td>Загрузчик на C++: FDT, VirtIO, ELF</td></tr>
+<tr><td>v0.3</td><td>SlipperKernel</td><td>Прерывания, задачи, round-robin, syscall</td></tr>
+<tr><td>v0.4</td><td>SlipperKernel</td><td>VirtIO block v2 MMIO в ядре</td></tr>
+<tr><td>v0.5</td><td>Оба</td><td>SlipFS + первый userspace</td></tr>
+<tr><td>v0.6</td><td>SlipperOS</td><td>CLI-утилиты, init-процесс</td></tr>
+<tr><td>v1.0</td><td>Все</td><td>Slip shell как userspace, picolibc, модули</td></tr>
 </tbody></table>
+<p>Подробнее - <a href="dev/roadmap.md">docs/dev/roadmap.md</a></p>
 <hr />
-<h2>Repository</h2>
-<ul>
-<li><a href="https://github.com/loki5512344/SlipperOS/tree/main/boot"><code>boot/</code></a> - boot.S + linker script</li>
-<li><a href="https://github.com/loki5512344/SlipperOS/tree/main/bootloader"><code>bootloader/</code></a> - planned C++ bootloader</li>
-<li><a href="https://github.com/loki5512344/SlipperOS/tree/main/kernel"><code>kernel/</code></a> - Rust kernel
-<ul>
-<li><code>drivers/</code> - UART, CLINT, PLIC, VirtIO</li>
-<li><code>mm/</code> - memory management</li>
-<li><code>proc/</code> - tasks and scheduler</li>
-<li><code>fs/</code> - filesystem</li>
-<li><code>shell/</code> - slip CLI</li>
-</ul>
-</li>
-<li><a href="https://github.com/loki5512344/SlipperOS/tree/main/docs"><code>docs/</code></a> - documentation site</li>
-<li><a href="build-docs.sh"><code>build-docs.sh</code></a> - HTML generator</li>
-</ul>
 <h2>License</h2>
 <p>GPL-3.0-or-later</p></main>
 </body>

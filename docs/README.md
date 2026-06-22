@@ -1,28 +1,41 @@
----
-nav: hidden
----
+# Документация Slipper
 
-# SlipperOS
+Проект состоит из трёх компонентов. Документация описывает каждый из них.
 
-Минималистичное ядро для OC2r, написанное на Rust + C++ (bootloader).
+## Структура docs/
 
-## Быстрый старт
-
-```bash
-# Сборка
-cargo build --release
-
-# Запуск в QEMU
-cargo run --release
+```
+docs/
+├── architecture/    — общая архитектура, boot flow, memory map
+├── dev/             — разработка: сборка, отладка, contributing
+├── hardware/        — железо: UART, CLINT, PLIC, VirtIO
+├── internals/       — внутренности: coding style, panic policy
+├── kernel/          — ядро SlipperKernel: прерывания, mm, proc
+├── lore/            — история, философия
+├── shell/           — slip shell: команды, внутренности
+└── README.md        — этот файл
 ```
 
-## Структура
+## Что где описывается
 
-- `boot/` — точка входа, линкер-скрипт
-- `kernel/` — ядро: main, panic, lib
-- `drivers/` — UART, CLINT, PLIC, VirtIO
-- `mm/` — менеджеры памяти
-- `proc/` — задачи и планировщик
-- `fs/` — файловая система
-- `shell/` — slip shell
-- `docs/` — документация
+| Раздел | Про что | Компонент |
+|--------|---------|-----------|
+| `architecture/` | Как всё работает вместе | Все |
+| `dev/` | Разработка и план | Все |
+| `hardware/` | Драйверы устройств | SlipperKernel |
+| `internals/` | Соглашения и политики | SlipperKernel |
+| `kernel/` | Внутренности ядра | SlipperKernel |
+| `shell/` | Slip shell | SlipperKernel |
+| `lore/` | Почему Slipper | Проект в целом |
+
+## Репозитории
+
+| Компонент | Репозиторий |
+|-----------|------------|
+| SlipperBoot | https://github.com/loki5512344/SlipperBoot |
+| SlipperKernel | https://github.com/loki5512344/SlipperKernel |
+| SlipperOS | (корень — этот репозиторий) |
+
+## План
+
+См. [dev/roadmap.md](dev/roadmap.md).

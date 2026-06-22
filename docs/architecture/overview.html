@@ -50,23 +50,52 @@ main li{margin-bottom:4px}
   <a href="overview.html" class="active">RU</a>
   <a href="overview.en.html">EN</a>
 </div></nav>
-<main><div class="breadcrumb"><a href="../">Docs</a> <span> / Architecture / Overview</span></div><h1>Архитектура SlipperOS</h1>
-<p>SlipperOS - монолитное ядро, работающее в S-mode RISC-V.
-Bootloader на C++, ядро на Rust, userspace C (picolibc) - см. language_policy.</p>
-<h2>Компоненты</h2>
+<main><div class="breadcrumb"><a href="../">Docs</a> <span> / Architecture / Overview</span></div><h1>Архитектура Slipper</h1>
+<p>Проект состоит из трёх независимых компонентов, каждый в своей директории:</p>
+<pre><code>OpenSBI (M-mode)
+    ↓
+SlipperBoot (S-mode, C++)
+    ↓
+SlipperKernel (S-mode, Rust - no_std)
+    ↓
+SlipperOS (userspace - будущее)
+</code></pre>
+<hr />
+<h2>SlipperBoot</h2>
+<p>Загрузчик на C++ (ни одного <code>.S</code> файла). Работает в S-mode, получает управление после OpenSBI.</p>
+<p><strong>Ответственность:</strong></p>
 <ul>
-<li><strong>boot</strong> - точка входа _start, обнуление bss, стек</li>
-<li><strong>SlipperBoot</strong> - загрузчик с диска (ELF парсер, FDT, boot.cfg) - <strong>v0.2, не реализован</strong></li>
-<li><strong>kernel</strong> - инициализация, panic handler</li>
-<li><strong>drivers</strong> - UART, CLINT, PLIC, VirtIO (block + GPU)</li>
-<li><strong>mm</strong> - bump allocator, page allocator, Sv39</li>
-<li><strong>proc</strong> - задачи, round-robin, контекст</li>
-<li><strong>fs</strong> - slipfs (блочная ФС)</li>
-<li><strong>shell</strong> - slip shell (UART-based CLI)</li>
-<li><strong>compositor</strong> - Wayland + GPU (отдельный аддон, не входит в ядро)</li>
+<li>UART (NS16550A) - вывод сообщений</li>
+<li>FDT-парсер - определение памяти, устройств</li>
+<li>VirtIO block - чтение <code>kernel.elf</code> с диска</li>
+<li>ELF64-парсер - загрузка сегментов в память</li>
+<li>Передача управления ядру (a0=hart_id, a1=fdt)</li>
 </ul>
-<h2>Поток управления</h2>
-<pre><code>OpenSBI → _start → [SlipperBoot] → kernel_main → shell_start
-</code></pre></main>
+<p><strong>Статус:</strong> v0.1 (прототип на asm) → v0.2 (C++ реализация - план)</p>
+<hr />
+<h2>SlipperKernel</h2>
+<p>Монолитное ядро на чистом Rust (<code>no_std</code>, <code>no_main</code>, panic=abort).
+Единственная зависимость - <code>riscv = &quot;0.16.1&quot;</code>.</p>
+<p><strong>Ответственность:</strong></p>
+<ul>
+<li><code>kernel/main.rs</code> - точка входа <code>kernel_main</code>, инициализация</li>
+<li><code>kernel/drivers/</code> - UART, CLINT, PLIC, VirtIO</li>
+<li><code>kernel/mm/</code> - bump allocator, page allocator, Sv39</li>
+<li><code>kernel/proc/</code> - задачи, round-robin, контекст</li>
+<li><code>kernel/fs/</code> - SlipFS (блочная ФС)</li>
+<li><code>kernel/shell/</code> - slip shell (UART CLI)</li>
+</ul>
+<p><strong>Статус:</strong> v0.1 (активно)</p>
+<hr />
+<h2>SlipperOS</h2>
+<p>Системный слой. Пока содержит документацию и билд-скрипты.
+В будущем - userspace-программы, init, библиотеки.</p>
+<p><strong>Ответственность:</strong></p>
+<ul>
+<li><code>docs/</code> - вся документация проекта</li>
+<li><code>build-docs.sh</code> - генератор HTML-документации</li>
+<li>В будущем: userspace (picolibc, C-программы)</li>
+</ul>
+<p><strong>Статус:</strong> формируется</p></main>
 </body>
 </html>

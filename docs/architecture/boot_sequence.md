@@ -1,58 +1,60 @@
 # Последовательность загрузки
 
-> **Статус**: SlipperBoot — design / not yet implemented (v0.2, см. roadmap).
-> Текущая загрузка: OpenSBI → `boot/boot.S` → `kernel_main`.
-
-## OpenSBI (M-mode)
-
-OpenSBI (вшит в OC2r) стартует в M-mode. Настраивает делегирование
-прерываний, передаёт управление на 0x80000000 в S-mode.
-
-## SlipperBoot (S-mode, C++) — v0.2
-
-Встречает управление по адресу 0x80000000. Написан на чистом C++,
-единственный `asm volatile` — naked `_start()`.
-
-1. **Hart select** — `mhartid` → hart 0 работает, остальные `wfi`.
-2. **BSS clear** — обнуляет `.bss` через inline asm в _start().
-3. **Stack** — `sp = &_stack_end`.
-4. **UART init** — NS16550A, вывод "SlipperBoot v0.1\n".
-5. **FDT parse** — читает Device Tree (a1), определяет размер памяти.
-6. **VirtIO probe** — ищет VirtIO block device, читает LBA.
-7. **ELF load** — находит `kernel.elf` на диске, парсит Program Headers,
-   копирует сегменты по адресам из ELF (0x80200000).
-8. **Entry** — прыгает на точку входа ядра, передавая a0=hart_id, a1=fdt.
+Трёхстадийная загрузка: OpenSBI → SlipperBoot → SlipperKernel.
 
 ```
 OpenSBI (M-mode)
+    ↓  a0=hart_id, a1=fdt_ptr
+SlipperBoot (S-mode, C++)
+    │  uart_init(), fdt_parse(), virtio_read(kernel.elf)
+    ↓  a0=hart_id, a1=fdt_ptr
+SlipperKernel (S-mode, Rust)
+    │  kernel_main()
+    │  uart, plic, clint, mm, sched, shell
     ↓
-SlipperBoot @ 0x80000000 (S-mode, C++)
-    │  uart_init()
-    │  fdt_parse()
-    │  virtio_read(kernel.elf)
-    │  elf_load()
-    ↓
-SlipperOS @ 0x80200000 (S-mode, Rust)
+Slip shell (UART CLI)
 ```
 
-## SlipperOS kernel (S-mode, Rust) — реализовано (v0.1)
+---
 
-Загружается SlipperBoot'ом по адресу из ELF. Точка входа — `kernel_main`.
+## Стадия 1: OpenSBI (M-mode)
+
+Встроен в OC2r или прошит на Milk-V Duo S. Настраивает делегирование
+прерываний, передаёт управление на адрес 0x80000000 в S-mode.
+Регистры: `a0 = hart_id`, `a1 = fdt_ptr`.
+
+## Стадия 2: SlipperBoot (S-mode, C++) — v0.2
+
+> **Текущий статус:** v0.1 — ассемблерный `boot.S` внутри SlipperKernel.
+> v0.2 — полноценный C++ загрузчик в `Slipper/SlipperBoot/` (план).
+
+Встречает управление по адресу 0x80000000.
+
+1. **Hart select** — `mhartid` → hart 0 работает, остальные `wfi`
+2. **BSS clear** — обнуляет `.bss`
+3. **Stack** — `sp = &_stack_end`
+4. **UART init** — NS16550A, "SlipperBoot v0.2\n"
+5. **FDT parse** — читает Device Tree (a1), определяет память, UART, VirtIO
+6. **VirtIO probe** — ищет VirtIO block device, читает LBA 0
+7. **ELF load** — находит `kernel.elf`, парсит Program Headers, копирует сегменты
+8. **Entry** — прыгает на точку входа ядра (a0=hart_id, a1=fdt)
+
+## Стадия 3: SlipperKernel (S-mode, Rust)
+
+Загружается по адресу из ELF (0x80200000). Точка входа — `kernel_main`:
 
 1. **UART init** — "SlipperOS v0.1 booting..."
-2. **print_seal** — аски тюлень
+2. **print_seal** — аски-тюлень
 3. **PLIC init** — priority, enables, threshold
 4. **CLINT init** — mtimecmp = mtime + slice
-5. **MM init** — page allocator из _end..memory_top
+5. **MM init** — page allocator из `_end..memory_top`
 6. **Sched init** — idle task
 7. **Shell start** — "slip> ready"
 
 ## S-mode vs M-mode
 
-SlipperOS работает в S-mode. OpenSBI выполняет M-mode bootstrap
+SlipperKernel работает в S-mode. OpenSBI выполняет M-mode bootstrap
 и делегирует трапы.
-
-### Регистры
 
 | Назначение | M-mode | S-mode |
 |---|---|---|

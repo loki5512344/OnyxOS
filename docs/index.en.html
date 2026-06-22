@@ -51,15 +51,23 @@ main li{margin-bottom:4px}
   <a href="index.en.html" class="active">EN</a>
 </div></nav>
 <main><h1>SlipperOS</h1>
-<p><a href="../LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3" /></a>
-<a href="https://riscv.org"><img src="https://img.shields.io/badge/arch-RISCV64-green" alt="Arch: RISC-V 64" /></a>
-<a href=""><img src="https://img.shields.io/badge/status-development-yellow" alt="Status" /></a>
-<a href="https://rust-lang.org"><img src="https://img.shields.io/badge/rust-nightly_2026--06--01-orange" alt="Rust" /></a>
-<a href=""><img src="https://img.shields.io/badge/lines-3500%2B-blue" alt="Lines" /></a>
-<a href=""><img src="https://img.shields.io/badge/target-OC2r-8A2BE2" alt="OC2r" /></a></p>
-<p>A minimalist RISC-V 64-bit kernel written in Rust. Monolithic design, S-mode, built for <a href="https://github.com/loki5512344/SlipperOS">OC2r</a> and Milk-V Duo S. Created by Loki + Seal.</p>
-<h2>Quick Start</h2>
-<pre><code class="language-bash"># Build
+<p>RISC-V operating system (OC2r / Milk-V Duo S). Three components:</p>
+<pre><code>Slipper/
+├── SlipperBoot/     - bootloader (C++)
+├── SlipperKernel/   - kernel (Rust, no_std)
+└── SlipperOS/       - system layer (docs, scripts, userspace)
+</code></pre>
+<hr />
+<h2>Components</h2>
+<table><thead><tr><th>Component</th><th>Lang</th><th>Role</th><th>Status</th></tr></thead><tbody>
+<tr><td><strong>*<em>*SlipperBoot*</em>*</strong></td><td>C++</td><td>UART, FDT, VirtIO, ELF loader</td><td>Planned (v0.2)</td></tr>
+<tr><td><strong>*<em>*SlipperKernel*</em>*</strong></td><td>Rust</td><td>Monolithic kernel: MM, processes, drivers, shell</td><td>In progress (v0.1)</td></tr>
+<tr><td><strong>*<em>*SlipperOS*</em>*</strong></td><td>-</td><td>Documentation, build scripts, future userspace</td><td>Forming</td></tr>
+</tbody></table>
+<hr />
+<h2>Build</h2>
+<h3>SlipperKernel</h3>
+<pre><code class="language-bash">cd SlipperKernel
 cargo build --release
 
 # Run in QEMU
@@ -68,12 +76,24 @@ qemu-system-riscv64 \
   -bios default \
   -kernel target/riscv64gc-unknown-none-elf/release/slipperos
 </code></pre>
-<p>Once booted, type <code>help</code> in the shell.</p>
-<h2>Links</h2>
-<ul>
-<li><a href="lore/why_slipperos.en.html">Why SlipperOS</a> - the story behind the project</li>
-<li><a href="dev/roadmap.en.html">Roadmap</a> - current status and plans</li>
-<li><a href="dev/getting_started.en.html">Getting Started</a> - build and run</li>
-</ul></main>
+<h3>SlipperBoot</h3>
+<pre><code class="language-bash">cd SlipperBoot
+make
+</code></pre>
+<hr />
+<h2>Roadmap</h2>
+<table><thead><tr><th>Version</th><th>Component</th><th>Milestone</th></tr></thead><tbody>
+<tr><td>v0.1</td><td>SlipperKernel</td><td>Kernel skeleton: UART, MM, drivers, shell - <strong>*<em>*done*</em>*</strong></td></tr>
+<tr><td>v0.2</td><td>SlipperBoot</td><td>C++ bootloader: FDT, VirtIO, ELF</td></tr>
+<tr><td>v0.3</td><td>SlipperKernel</td><td>Traps, tasks, round-robin, syscall</td></tr>
+<tr><td>v0.4</td><td>SlipperKernel</td><td>VirtIO block v2 MMIO</td></tr>
+<tr><td>v0.5</td><td>Both</td><td>SlipFS + first userspace</td></tr>
+<tr><td>v0.6</td><td>SlipperOS</td><td>CLI tools, init process</td></tr>
+<tr><td>v1.0</td><td>All</td><td>Userspace shell, picolibc, modules</td></tr>
+</tbody></table>
+<p>Details - <a href="dev/roadmap.md">docs/dev/roadmap.md</a></p>
+<hr />
+<h2>License</h2>
+<p>GPL-3.0-or-later</p></main>
 </body>
 </html>

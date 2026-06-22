@@ -50,18 +50,21 @@ main li{margin-bottom:4px}
   <a href="roadmap.html" class="active">RU</a>
   <a href="roadmap.en.html">EN</a>
 </div></nav>
-<main><div class="breadcrumb"><a href="../">Docs</a> <span> / Dev / Roadmap</span></div><h1>Roadmap SlipperOS</h1>
-<h2>v0.1 - Костяк</h2>
+<main><div class="breadcrumb"><a href="../">Docs</a> <span> / Dev / Roadmap</span></div><h1>Roadmap</h1>
+<h2>v0.1 - SlipperKernel: костяк ✅</h2>
 <ul>
 <li>[x] UART консоль (NS16550A)</li>
 <li>[x] CLINT таймер</li>
 <li>[x] PLIC прерывания</li>
 <li>[x] Bump + Page allocator</li>
 <li>[x] Sv39 identity map</li>
+<li>[x] VirtIO block (v2 MMIO, базовая инициализация)</li>
+<li>[x] FDT-парсер (memory, UART, VirtIO)</li>
 <li>[x] Slip shell (7 команд)</li>
 <li>[x] Panic handler</li>
+<li>[x] Разделение на SlipperBoot / SlipperKernel / SlipperOS</li>
 </ul>
-<h2>v0.2 - SlipperBoot (загрузчик)</h2>
+<h2>v0.2 - SlipperBoot: загрузчик</h2>
 <ul>
 <li>[ ] <strong>SlipperBoot</strong> на C++, без единого <code>.S</code> файла</li>
 <li>[ ] UART драйвер (адрес из FDT)</li>
@@ -71,38 +74,36 @@ main li{margin-bottom:4px}
 <li>[ ] Загрузка <code>kernel.elf</code> с диска и запуск</li>
 <li>[ ] Boot menu через UART (опционально)</li>
 </ul>
-<h2>v0.3 - Прерывания и задачи</h2>
+<h2>v0.3 - SlipperKernel: прерывания и задачи</h2>
 <ul>
 <li>[ ] Trap handler (S-mode, <code>stvec</code>)</li>
 <li>[ ] Реальное переключение контекста в <code>sched_yield()</code></li>
 <li>[ ] Round-robin scheduler по CLINT</li>
 <li>[ ] syscall: ecall handler</li>
 </ul>
-<h2>v0.4 - VirtIO block в ядре (v2 MMIO)</h2>
+<h2>v0.4 - SlipperKernel: VirtIO block v2 MMIO</h2>
 <ul>
-<li>[x] Подтверждён v2 MMIO (Sedna: <code>VIRTIO_MMIO_VERSION = 2</code>, обязателен <code>VIRTIO_F_VERSION_1</code>)</li>
 <li>[ ] Descriptor-based page allocator (contiguous)</li>
-<li>[ ] Чтение/запись секторов (драйвер под v2)</li>
+<li>[ ] Чтение/запись секторов (полноценный драйвер)</li>
 <li>[ ] Прерывания по завершению I/O</li>
 </ul>
 <h2>v0.5 - SlipFS + userspace</h2>
 <ul>
-<li>[ ] SlipFS (блочная ФС на Rust)</li>
-<li>[ ] Mount, read, write</li>
+<li>[ ] SlipFS (блочная ФС на Rust) - в SlipperKernel</li>
 <li>[ ] ELF загрузчик в ядре</li>
-<li>[ ] Первый userspace процесс</li>
+<li>[ ] Первый userspace процесс в SlipperOS</li>
 </ul>
-<h2>v0.6 - Стабильное ядро</h2>
+<h2>v0.6 - SlipperOS: стабильная система</h2>
 <ul>
-<li>[ ] CLI тулы (ls, cat, echo, ps)</li>
+<li>[ ] CLI тулы (ls, cat, echo, ps) - в SlipperOS</li>
 <li>[ ] Init процесс</li>
 <li>[ ] Работает в OC2r</li>
 <li>[ ] Полная документация</li>
 </ul>
 <h2>v1.0 - Релиз</h2>
 <ul>
-<li>[ ] Slip shell как userspace программа</li>
-<li>[ ] Порт picolibc для C-софта</li>
+<li>[ ] Slip shell как userspace программа (SlipperOS)</li>
+<li>[ ] Порт picolibc для C-софта (SlipperOS)</li>
 <li>[ ] Загрузка модулей через SlipperBoot</li>
 </ul></main>
 </body>

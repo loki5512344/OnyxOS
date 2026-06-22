@@ -50,27 +50,36 @@ main li{margin-bottom:4px}
   <a href="README.html" class="active">RU</a>
   <a href="README.en.html">EN</a>
 </div></nav>
-<main><div class="breadcrumb"><a href=".">Docs</a> <span> / README</span></div><hr />
-<h2>nav: hidden</h2>
-<h1>SlipperOS</h1>
-<p>Минималистичное ядро для OC2r, написанное на Rust + C++ (bootloader).</p>
-<h2>Быстрый старт</h2>
-<pre><code class="language-bash"># Сборка
-cargo build --release
-
-# Запуск в QEMU
-cargo run --release
+<main><div class="breadcrumb"><a href=".">Docs</a> <span> / README</span></div><h1>Документация Slipper</h1>
+<p>Проект состоит из трёх компонентов. Документация описывает каждый из них.</p>
+<h2>Структура docs/</h2>
+<pre><code>docs/
+├── architecture/    - общая архитектура, boot flow, memory map
+├── dev/             - разработка: сборка, отладка, contributing
+├── hardware/        - железо: UART, CLINT, PLIC, VirtIO
+├── internals/       - внутренности: coding style, panic policy
+├── kernel/          - ядро SlipperKernel: прерывания, mm, proc
+├── lore/            - история, философия
+├── shell/           - slip shell: команды, внутренности
+└── README.md        - этот файл
 </code></pre>
-<h2>Структура</h2>
-<ul>
-<li><code>boot/</code> - точка входа, линкер-скрипт</li>
-<li><code>kernel/</code> - ядро: main, panic, lib</li>
-<li><code>drivers/</code> - UART, CLINT, PLIC, VirtIO</li>
-<li><code>mm/</code> - менеджеры памяти</li>
-<li><code>proc/</code> - задачи и планировщик</li>
-<li><code>fs/</code> - файловая система</li>
-<li><code>shell/</code> - slip shell</li>
-<li><code>docs/</code> - документация</li>
-</ul></main>
+<h2>Что где описывается</h2>
+<table><thead><tr><th>Раздел</th><th>Про что</th><th>Компонент</th></tr></thead><tbody>
+<tr><td><code>`architecture/`</code></td><td>Как всё работает вместе</td><td>Все</td></tr>
+<tr><td><code>`dev/`</code></td><td>Разработка и план</td><td>Все</td></tr>
+<tr><td><code>`hardware/`</code></td><td>Драйверы устройств</td><td>SlipperKernel</td></tr>
+<tr><td><code>`internals/`</code></td><td>Соглашения и политики</td><td>SlipperKernel</td></tr>
+<tr><td><code>`kernel/`</code></td><td>Внутренности ядра</td><td>SlipperKernel</td></tr>
+<tr><td><code>`shell/`</code></td><td>Slip shell</td><td>SlipperKernel</td></tr>
+<tr><td><code>`lore/`</code></td><td>Почему Slipper</td><td>Проект в целом</td></tr>
+</tbody></table>
+<h2>Репозитории</h2>
+<table><thead><tr><th>Компонент</th><th>Репозиторий</th></tr></thead><tbody>
+<tr><td>SlipperBoot</td><td>https://github.com/loki5512344/SlipperBoot</td></tr>
+<tr><td>SlipperKernel</td><td>https://github.com/loki5512344/SlipperKernel</td></tr>
+<tr><td>SlipperOS</td><td>(корень - этот репозиторий)</td></tr>
+</tbody></table>
+<h2>План</h2>
+<p>См. <a href="dev/roadmap.md">dev/roadmap.md</a>.</p></main>
 </body>
 </html>

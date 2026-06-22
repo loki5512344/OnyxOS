@@ -1,18 +1,32 @@
 # SlipperOS
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](../LICENSE)
-[![Arch: RISC-V 64](https://img.shields.io/badge/arch-RISCV64-green)](https://riscv.org)
-[![Status](https://img.shields.io/badge/status-development-yellow)]()
-[![Rust](https://img.shields.io/badge/rust-nightly_2026--06--01-orange)](https://rust-lang.org)
-[![Lines](https://img.shields.io/badge/lines-3500%2B-blue)]()
-[![OC2r](https://img.shields.io/badge/target-OC2r-8A2BE2)]()
+RISC-V operating system (OC2r / Milk-V Duo S). Three components:
 
-A minimalist RISC-V 64-bit kernel written in Rust. Monolithic design, S-mode, built for [OC2r](https://github.com/loki5512344/SlipperOS) and Milk-V Duo S. Created by Loki + Seal.
+```
+Slipper/
+├── SlipperBoot/     — bootloader (C++)
+├── SlipperKernel/   — kernel (Rust, no_std)
+└── SlipperOS/       — system layer (docs, scripts, userspace)
+```
 
-## Quick Start
+---
+
+## Components
+
+| Component | Lang | Role | Status |
+|-----------|------|------|--------|
+| **SlipperBoot** | C++ | UART, FDT, VirtIO, ELF loader | Planned (v0.2) |
+| **SlipperKernel** | Rust | Monolithic kernel: MM, processes, drivers, shell | In progress (v0.1) |
+| **SlipperOS** | — | Documentation, build scripts, future userspace | Forming |
+
+---
+
+## Build
+
+### SlipperKernel
 
 ```bash
-# Build
+cd SlipperKernel
 cargo build --release
 
 # Run in QEMU
@@ -22,10 +36,31 @@ qemu-system-riscv64 \
   -kernel target/riscv64gc-unknown-none-elf/release/slipperos
 ```
 
-Once booted, type `help` in the shell.
+### SlipperBoot
 
-## Links
+```bash
+cd SlipperBoot
+make
+```
 
-- [Why SlipperOS](docs/lore/why_slipperos.en.html) — the story behind the project
-- [Roadmap](docs/dev/roadmap.en.html) — current status and plans
-- [Getting Started](docs/dev/getting_started.en.html) — build and run
+---
+
+## Roadmap
+
+| Version | Component | Milestone |
+|---------|-----------|-----------|
+| v0.1 | SlipperKernel | Kernel skeleton: UART, MM, drivers, shell — **done** |
+| v0.2 | SlipperBoot | C++ bootloader: FDT, VirtIO, ELF |
+| v0.3 | SlipperKernel | Traps, tasks, round-robin, syscall |
+| v0.4 | SlipperKernel | VirtIO block v2 MMIO |
+| v0.5 | Both | SlipFS + first userspace |
+| v0.6 | SlipperOS | CLI tools, init process |
+| v1.0 | All | Userspace shell, picolibc, modules |
+
+Details — [docs/dev/roadmap.md](docs/dev/roadmap.md)
+
+---
+
+## License
+
+GPL-3.0-or-later
