@@ -1,0 +1,110 @@
+name: Build & Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-onyxcc:
+    name: OnyxCompiller (host + selfhost)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: loki5512344/OnyxCompiller
+      - name: Install deps
+        run: sudo apt-get update && sudo apt-get install -y cmake build-essential
+      - name: Build host onyxcc
+        run: make -j$(nproc)
+      - name: Self-hosting test (compile own sources)
+        run: make selfhost-test
+      - name: Self-hosting full build
+        run: make selfhost
+      - name: Upload onyxcc_self.onx
+        uses: actions/upload-artifact@v4
+        with:
+          name: onyxcc_self
+          path: onyxcc_self.onx
+
+  build-onyxboot:
+    name: OnyxBoot
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: loki5512344/OnyxBoot
+      - name: Install toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-riscv64-unknown-elf make
+      - name: Build
+        run: make -j$(nproc)
+      - name: Upload kernel.elf
+        uses: actions/upload-artifact@v4
+        with:
+          name: onyxboot-elf
+          path: kernel.elf
+
+  build-onyxkernel:
+    name: OnyxKernel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: loki5512344/OnyxKernel
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: nightly
+          targets: riscv64gc-unknown-none-elf
+      - name: Build kernel
+        run: cargo build --release -p onyx_kernel
+      - name: Build tools
+        run: cargo build --release -p onyx_tools
+      - name: Run core tests
+        run: cargo test -p onyx_core
+      - name: Upload kernel
+        uses: actions/upload-artifact@v4
+        with:
+          name: onyxkernel-elf
+          path: target/riscv64gc-unknown-none-elf/release/Onyxos
+
+  build-onyxshell:
+    name: OnyxShell
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: loki5512344/OnyxShell
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: nightly
+          targets: riscv64gc-unknown-none-elf
+      - name: Build
+        run: bash build.sh
+
+  build-onyxos:
+    name: OnyxOS meta
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        run: sudo apt-get update && sudo apt-get install -y cmake build-essential libcurl4-openssl-dev libarchive-dev
+      - name: Setup Vent
+        run: bash scripts/bootstrap.sh
+      - name: Verify all repos cloned
+        run: |
+          for repo in OnyxKernel OnyxBoot OnyxShell OnyxCompiller; do
+            if [ -d ".vent/repos/$repo" ]; then
+              echo "✓ $repo"
+            else
+              echo "✗ $repo missing"
+              exit 1
+            fi
+          done
