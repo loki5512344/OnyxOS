@@ -1,51 +1,90 @@
 # Roadmap
 
-## v0.1 — SlipperKernel: костяк ✅
-- [x] UART консоль (NS16550A)
-- [x] CLINT таймер
-- [x] PLIC прерывания
-- [x] Bump + Page allocator
-- [x] Sv39 identity map
-- [x] VirtIO block (v2 MMIO, базовая инициализация)
-- [x] FDT-парсер (memory, UART, VirtIO)
-- [x] Slip shell (7 команд)
-- [x] Panic handler
-- [x] Разделение на SlipperBoot / SlipperKernel / SlipperOS
+## OnyxOS Ecosystem Roadmap
 
-## SlipperBoot: загрузчик (v0.4)
-- [x] Точка входа _start (naked C++, inline asm)
-- [x] UART драйвер (NS16550A, адрес из FDT)
-- [x] VirtIO block v2 MMIO (probe, read_sector)
-- [x] SDHCI driver (probe, read_sector)
-- [x] FAT32 + EXT4 reader
-- [x] ELF64 парсер (valid, check_safe, load_all)
-- [x] FDT парсер (memory, UART, VirtIO, SDHCI)
-- [x] Boot menu (выбор устройства)
-- [x] Загрузка `kernel.elf` с диска и запуск
+### v0.4 — текущий релиз ✅
 
-## v0.3 — SlipperKernel: прерывания и задачи
-- [ ] Trap handler (S-mode, `stvec`)
-- [ ] Реальное переключение контекста в `sched_yield()`
-- [ ] Round-robin scheduler по CLINT
-- [ ] syscall: ecall handler
+**OnyxBoot:**
+- [x] UART, FDT, VirtIO v2 MMIO, SDHCI
+- [x] FAT32 + ext4 read, GPT + MBR
+- [x] Boot menu с timeout
+- [x] ELF64 загрузчик
+- [x] QEMU интеграционные тесты
 
-## v0.4 — SlipperKernel: VirtIO block v2 MMIO
-- [ ] Descriptor-based page allocator (contiguous)
-- [ ] Чтение/запись секторов (полноценный драйвер)
-- [ ] Прерывания по завершению I/O
+**OnyxKernel (core):**
+- [x] UART, CLINT, PLIC, таймер
+- [x] PMM (bitmap+slab) + VMM (Sv39)
+- [x] Heap allocator
+- [x] Процессы: динамический список, spawn, exec, wait
+- [x] Scheduler: SMP, per-CPU run queues, load balancing
+- [x] 77 syscalls (POSIX-flavored)
+- [x] OnyxFS v2 (журналирование, COW snapshots, indirect blocks)
+- [x] OnyxExec v2 загрузчик (RLE compression, ring1 flag)
+- [x] VirtIO block/net, GMAC
+- [x] TCP/IP (Ethernet, IP, TCP)
+- [x] IPC каналы (/ipc/*)
+- [x] Framebuffer + PSF1/PSF2 шрифты
+- [x] /proc filesystem
+- [x] Аутентификация (/etc/passwd + /etc/shadow)
+- [x] INIT + LOGIN + userspace binaries (9 штук)
+- [x] FDT-driven адреса устройств
 
-## v0.5 — SlipFS + userspace
-- [ ] SlipFS (блочная ФС на Rust) — в SlipperKernel
-- [ ] ELF загрузчик в ядре
-- [ ] Первый userspace процесс в SlipperOS
+**OnyxShell:**
+- [x] 20 built-in команд
+- [x] Tab completion + arrow-key history
+- [x] History expansion (!! / !N / !-N)
+- [x] Pipe (|) и redirect (>, <)
+- [x] Wildcard globbing (*, ?, [...])
+- [x] QEMU integration test
 
-## v0.6 — SlipperOS: стабильная система
-- [ ] CLI тулы (ls, cat, echo, ps) — в SlipperOS
-- [ ] Init процесс
-- [ ] Работает в OC2r
-- [ ] Полная документация
+**OnyxCompiller:**
+- [x] C99 lexer, preprocessor, parser
+- [x] RV64IMA codegen
+- [x] .onx v1 output
+- [x] libonyxc (printf, malloc, string, syscall wrappers)
+- [x] 58 тестовых программ
 
-## v1.0 — Релиз
-- [ ] Slip shell как userspace программа (SlipperOS)
-- [ ] Порт picolibc для C-софта (SlipperOS)
-- [ ] Загрузка модулей через SlipperBoot
+**OnyxOS:**
+- [x] Vent dependency management
+- [x] Bootstrap/build/run скрипты
+- [x] Полная документация
+
+### v0.5 — стабилизация ядра
+
+**OnyxKernel:**
+- [ ] FAT32 read (lookup/read)
+- [ ] USB xHCI URB transfer
+- [ ] symlink/readlink
+- [ ] chmod/fchmod
+- [ ] truncate/ftruncate(>0)
+- [ ] getdents64 batched
+- [ ] fork c argv/envp
+- [ ] UDP/DHCP/DNS
+
+**OnyxCompiller:**
+- [ ] **Самокомпиляция** (P0)
+- [ ] Multi-file linking
+- [ ] Глобальные инициализаторы массивов/строк
+- [ ] Автоматический test runner
+
+**Quality:**
+- [ ] GitHub Actions CI
+- [ ] Unit-тесты ядра
+- [ ] Full-stack QEMU test suite
+
+### v0.6 — расширение
+
+**OnyxKernel:**
+- [ ] 32-bit порт (RV32)
+- [ ] Многопользовательский режим
+- [ ] Динамические модули
+
+**OnyxCompiller:**
+- [ ] C++ фронтенд (начало)
+- [ ] Оптимизации (const propagation, dead code elimination)
+
+### v1.0 — стабильный релиз
+
+- [ ] Проверка на реальном Milk-V Duo S
+- [ ] Документация на двух языках
+- [ ] Self-hosting: OnyxOS компилирует OnyxOS

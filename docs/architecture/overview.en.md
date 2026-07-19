@@ -1,59 +1,94 @@
-# Slipper Architecture
+# OnyxOS Architecture
 
-Three independent components, each in its own directory:
+Five independent components, each in its own repository:
 
 ```
 OpenSBI (M-mode)
     ↓
-SlipperBoot (S-mode, C++)
+OnyxBoot (S-mode, C++)
     ↓
-SlipperKernel (S-mode, Rust — no_std)
+OnyxKernel (S-mode, Rust — no_std)
     ↓
-SlipperOS (userspace — future)
+init → login → OnyxShell (ring 1, Rust)
+    ↓
+OnyxCompiller (ring 2, C — userspace)
 ```
 
 ---
 
-## SlipperBoot
+## OnyxBoot
 
-C++ bootloader (zero `.S` files). Runs in S-mode after OpenSBI.
+C++20 bootloader (zero `.S` files). Runs in S-mode after OpenSBI.
 
 **Responsibilities:**
 - UART (NS16550A) — boot messages
-- FDT parser — detect memory, devices
-- VirtIO block — read `kernel.elf` from disk
+- FDT parser — detect memory, devices (UART, VirtIO, SDHCI)
+- VirtIO block / SDHCI — read `kernel.elf` from disk
+- FAT32 + ext4 read, GPT + MBR
 - ELF64 parser — load segments into memory
+- Boot menu with timeout, device selection
 - Jump to kernel (a0=hart_id, a1=fdt)
 
-**Status:** v0.4 — UART, VirtIO, SDHCI, FAT32/EXT4, ELF, FDT, boot menu
+**Status:** v0.4 — stable, QEMU-tested
 
 ---
 
-## SlipperKernel
+## OnyxKernel
 
-Monolithic kernel in pure Rust (`no_std`, `no_main`, panic=abort).
-Single dependency: `riscv = "0.16.1"`.
+Monolithic kernel in pure Rust (`no_std`, `no_main`). RISC-V 64-bit (rv64gc),
+32-bit port WIP.
 
-**Responsibilities:**
-- `kernel/main.rs` — entry point `kernel_main`, init
-- `kernel/drivers/` — UART, CLINT, PLIC, VirtIO
-- `kernel/mm/` — bump allocator, page allocator, Sv39
-- `kernel/proc/` — tasks, round-robin, context switch
-- `kernel/fs/` — SlipFS (block FS)
-- `kernel/shell/` — slip shell (UART CLI)
+**Key subsystems:**
+- `kernel/src/mm/` — PMM (bitmap+slab), VMM (Sv39), heap
+- `kernel/src/proc/` — processes, SMP scheduler, signals, onx loader
+- `kernel/src/fs/` — OnyxFS v2, VFS, FAT32, procfs, ipcfs, devfs
+- `kernel/src/drivers/` — UART, VirtIO, SDHCI, PCI, PLIC, GMAC, USB, display
+- `kernel/src/syscall/` — 77 syscalls (POSIX-flavored)
+- `kernel/src/net/` — Ethernet, IP, TCP
+- `kernel/src/ipc/` — IPC channels with ring buffer
 
-**Status:** v0.1 (active)
+**Status:** active development, ~30K+ LOC
 
 ---
 
-## SlipperOS
+## OnyxShell
 
-System layer. Currently holds documentation and build scripts.
-Future: userspace programs, init, libraries.
+Userspace shell (`/bin/osh`). Runs in ring 1 (root space).
+
+**Features:**
+- 20 built-in commands: ls, cat, cp, mv, rm, mkdir, touch, stat, cd, pwd, echo, whoami, uname, date, clear, help, exit, exec, run, ver
+- Tab completion, arrow-key history
+- History expansion (!! / !N / !-N)
+- Pipe (|) and redirect (>, <)
+- Wildcard globbing (*, ?, [...])
+
+**Status:** v0.3, active
+
+---
+
+## OnyxCompiller
+
+C → RISC-V 64-bit → `.onx` compiler. Single-pass, inspired by tcc.
+
+**Features:**
+- C99 parser (functions, struct/union/enum, pointers, arrays)
+- Preprocessor (#include, #define, #if/#ifdef...)
+- RV64IMA codegen
+- libonyxc (printf, malloc, string)
+- Dual build: native Linux + `.onx` for OnyxOS
+
+**Status:** MVP, self-hosting in progress
+
+---
+
+## OnyxOS
+
+System layer: documentation, build scripts, integration.
 
 **Responsibilities:**
-- `docs/` — full project documentation
-- `build-docs.sh` — HTML doc generator
-- Future: userspace (picolibc, C programs)
+- `docs/` — project documentation
+- `scripts/` — bootstrap, build-all, run-qemu
+- `Onyx.vent` — dependency management via Vent
+- Future: full userspace
 
-**Status:** forming
+**Status:** meta-repository
