@@ -41,9 +41,18 @@ jobs:
       - name: Install toolchain
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-riscv64-unknown-elf make
+          sudo apt-get install -y gcc-riscv64-unknown-elf make || \
+          sudo apt-get install -y gcc-riscv64-linux-gnu make
       - name: Build
-        run: make -j$(nproc)
+        run: |
+          if command -v riscv64-unknown-elf-gcc &>/dev/null; then
+            make -j$(nproc)
+          elif command -v riscv64-linux-gnu-gcc &>/dev/null; then
+            make -j$(nproc) CROSS=riscv64-linux-gnu CC=riscv64-linux-gnu-gcc
+          else
+            echo "No RISC-V cross-compiler found"
+            exit 1
+          fi
       - name: Upload kernel.elf
         uses: actions/upload-artifact@v4
         with:
@@ -58,10 +67,9 @@ jobs:
         with:
           repository: loki5512344/OnyxKernel
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: nightly
-          targets: riscv64gc-unknown-none-elf
+          targets: riscv64gc-unknown-none-elf,host
       - name: Build kernel
         run: cargo build --release -p onyx_kernel
       - name: Build tools
@@ -82,9 +90,8 @@ jobs:
         with:
           repository: loki5512344/OnyxShell
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: nightly
           targets: riscv64gc-unknown-none-elf
       - name: Build
         run: bash build.sh
