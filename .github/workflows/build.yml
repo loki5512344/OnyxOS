@@ -71,7 +71,7 @@ jobs:
         with:
           targets: riscv64gc-unknown-none-elf
       - name: Build kernel
-        run: cargo build --release -p onyx_kernel
+        run: cargo build --release -p onyx_kernel --target riscv64gc-unknown-none-elf
       - name: Build tools
         run: cargo build --release -p onyx_tools
       - name: Run core tests
